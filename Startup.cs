@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Attendance_Performance_Control.Models;
 
 namespace Attendance_Performance_Control
 {
@@ -36,7 +37,7 @@ namespace Attendance_Performance_Control
                 options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("pt-PT");
                 //By default the below will be set HTTP Request Header to whatever the server culture is.
                 // Force to have default culture everywhere
-                options.SupportedCultures = new List<CultureInfo> { new CultureInfo("pt-PT") };
+                options.SupportedCultures = new List<CultureInfo> {new CultureInfo("pt-PT")};
                 // Remove all Culture Providers from pipeline, to cleaner and lighter code,
                 // we don't need them in current project
                 options.RequestCultureProviders = new List<IRequestCultureProvider>();
@@ -46,10 +47,14 @@ namespace Attendance_Performance_Control
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options =>
+                    options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            //Add this service for automatic redirect to login page and after to Index
             //services.AddAuthorization(options =>
             //{
             //    // This says, that all pages need AUTHORIZATION. But when a controller, 
@@ -60,10 +65,11 @@ namespace Attendance_Performance_Control
             //        .Build();
             //});
 
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -95,6 +101,41 @@ namespace Attendance_Performance_Control
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+
+            // Function that create user and add it to Admin Role
+            CreateRoles(serviceProvider);
+        }
+
+        private void CreateRoles(IServiceProvider serviceProvider)
+        {
+
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            string email = "a.marum@previa.pt";
+
+            //Check if Administrator role exist
+            var isAdminRoleExist = roleManager.RoleExistsAsync("Admin").Result;
+
+            //if Admin role do not exist
+            if (!isAdminRoleExist)
+            {
+                //Create Admin Role
+                Task<IdentityResult>  roleResult = roleManager.CreateAsync(new IdentityRole("Admin"));
+                roleResult.Wait();
+
+                //Create User
+                ApplicationUser administrator = new ApplicationUser {Email = email, UserName = email};
+
+                Task<IdentityResult> newUser = userManager.CreateAsync(administrator, "Previa2020!");
+                newUser.Wait();
+
+                //Add User to Admin role
+                if (newUser.Result.Succeeded)
+                {
+                    Task<IdentityResult> newUserRole = userManager.AddToRoleAsync(administrator, "Admin");
+                    newUserRole.Wait();
+                }
+            }
         }
     }
 }

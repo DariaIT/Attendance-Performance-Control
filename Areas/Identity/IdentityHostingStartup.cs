@@ -1,5 +1,6 @@
 ﻿using System;
 using Attendance_Performance_Control.Data;
+using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
