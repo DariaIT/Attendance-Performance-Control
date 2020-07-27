@@ -21,6 +21,10 @@ namespace Attendance_Performance_Control
 {
     public class Startup
     {
+        //Declare secret variables from "secret.json"
+        private string _adminEmail = null;
+        private string _adminPass = null;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,6 +35,10 @@ namespace Attendance_Performance_Control
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //call secret variables from "secret.json"
+            _adminEmail = Configuration["Attendence-Control:AdminEmail"];
+            _adminPass = Configuration["Attendence-Control:AdminPass"];
+
             // Add default portuguese culture
             services.Configure<RequestLocalizationOptions>(options =>
             {
@@ -144,7 +152,8 @@ namespace Attendance_Performance_Control
 
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            string email = "a.marum@previa.pt";
+            //use secret variables from "secret.json"
+            string email = _adminEmail;
 
             //Check if Administrator role exist
             var isAdminRoleExist = roleManager.RoleExistsAsync("Admin").Result;
@@ -159,7 +168,7 @@ namespace Attendance_Performance_Control
                 //Create User
                 ApplicationUser administrator = new ApplicationUser {Email = email, UserName = email, EmailConfirmed = true};
 
-                Task<IdentityResult> newUser = userManager.CreateAsync(administrator, "Previa2020!");
+                Task<IdentityResult> newUser = userManager.CreateAsync(administrator, _adminPass);
                 newUser.Wait();
                 
 
