@@ -96,15 +96,15 @@ namespace Attendance_Performance_Control
             });
 
             //Add this service for automatic redirect to login page and after to Index
-            //services.AddAuthorization(options =>
-            //{
-            //    // This says, that all pages need AUTHORIZATION. But when a controller, 
-            //    // for example the login controller in Login.cshtml.cs, is tagged with
-            //    // [AllowAnonymous] then it is not in need of AUTHORIZATION. :)
-            //    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-            //        .RequireAuthenticatedUser()
-            //        .Build();
-            //});
+            services.AddAuthorization(options =>
+            {
+                // This says, that all pages need AUTHORIZATION. But when a controller, 
+                // for example the login controller in Login.cshtml.cs, is tagged with
+                // [AllowAnonymous] then it is not in need of AUTHORIZATION.
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
 
 
         }
