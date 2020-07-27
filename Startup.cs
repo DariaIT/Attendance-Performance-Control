@@ -54,6 +54,39 @@ namespace Attendance_Performance_Control
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            // Add default options Identity configuration
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 7;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
+
             //Add this service for automatic redirect to login page and after to Index
             //services.AddAuthorization(options =>
             //{
@@ -124,10 +157,11 @@ namespace Attendance_Performance_Control
                 roleResult.Wait();
 
                 //Create User
-                ApplicationUser administrator = new ApplicationUser {Email = email, UserName = email};
+                ApplicationUser administrator = new ApplicationUser {Email = email, UserName = email, EmailConfirmed = true};
 
                 Task<IdentityResult> newUser = userManager.CreateAsync(administrator, "Previa2020!");
                 newUser.Wait();
+                
 
                 //Add User to Admin role
                 if (newUser.Result.Succeeded)
