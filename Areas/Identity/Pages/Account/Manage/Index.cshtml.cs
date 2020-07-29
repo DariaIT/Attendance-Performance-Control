@@ -33,8 +33,17 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
+            [Required]
+            [Display(Name = "Primeiro Nome")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [Display(Name = "Segundo Nome")]
+            public string LastName { get; set; }
+
+
             [Phone]
-            [Display(Name = "Phone number")]
+            [Display(Name = "Telemóvel")]
             public string PhoneNumber { get; set; }
         }
 
@@ -47,6 +56,8 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 PhoneNumber = phoneNumber
             };
         }
@@ -87,6 +98,17 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
                     return RedirectToPage();
                 }
             }
+
+            if (Input.FirstName != user.FirstName)
+            {
+                user.FirstName = Input.FirstName;
+            }
+
+            if (Input.LastName != user.LastName)
+            {
+                user.LastName = Input.LastName;
+            }
+
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";

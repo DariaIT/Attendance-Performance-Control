@@ -84,11 +84,14 @@ namespace Attendance_Performance_Control
                 options.User.RequireUniqueEmail = true;
             });
 
+            //Session expiry for MVC is provided via cookie
             services.ConfigureApplicationCookie(options =>
             {
                 // Cookie settings
+                //A flag that says the cookie is only available to servers.
+                //The browser only sends the cookie but cannot access it through JavaScript.
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
 
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
@@ -166,7 +169,14 @@ namespace Attendance_Performance_Control
                 roleResult.Wait();
 
                 //Create User
-                ApplicationUser administrator = new ApplicationUser {Email = email, UserName = email, EmailConfirmed = true};
+                ApplicationUser administrator = new ApplicationUser
+                {
+                    FirstName = "Ângelo",
+                    LastName = "Marum",
+                    Email = email,
+                    UserName = email,
+                    EmailConfirmed = true
+                };
 
                 Task<IdentityResult> newUser = userManager.CreateAsync(administrator, _adminPass);
                 newUser.Wait();

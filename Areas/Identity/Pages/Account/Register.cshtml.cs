@@ -46,6 +46,17 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
 
         public class InputModel
         {
+
+            [Required]
+            [StringLength(20, ErrorMessage = "O campo {0} deve ter, pelo menos {2} e máximo {1} caracteres.", MinimumLength = 3)]
+            [Display(Name = "Primeiro Nome")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [StringLength(20, ErrorMessage = "O campo {0} deve ter, pelo menos {2} e máximo {1} caracteres.", MinimumLength = 3)]
+            [Display(Name = "Segundo Nome")]
+            public string LastName { get; set; }
+
             [Required]
             [EmailAddress]
             [Display(Name = "Email")]
@@ -75,7 +86,13 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+                var user = new ApplicationUser
+                {
+                    FirstName = Input.FirstName,
+                    LastName = Input.LastName,
+                    UserName = Input.Email,
+                    Email = Input.Email
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
