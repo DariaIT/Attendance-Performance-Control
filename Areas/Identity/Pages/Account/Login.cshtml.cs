@@ -43,12 +43,13 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "O campo Email é obrigatório.")]
+            [EmailAddress(ErrorMessage = "Email não é válido.")]
             public string Email { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "O campo Palavra Passe é obrigatório.")]
             [DataType(DataType.Password)]
+            [Display(Name = "Palavra Passe")]
             public string Password { get; set; }
 
             [Display(Name = "Remember me?")]
@@ -97,7 +98,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "A palavra passe ou o endereço de e-mail não é válido.");
                     return Page();
                 }
             }

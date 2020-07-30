@@ -47,34 +47,34 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
         public class InputModel
         {
 
-            [Required]
+            [Required(ErrorMessage = "O campo Primeiro Nome é obrigatório.")]
             [StringLength(20, ErrorMessage = "O campo {0} deve ter, pelo menos {2} e máximo {1} caracteres.", MinimumLength = 3)]
             [Display(Name = "Primeiro Nome")]
             public string FirstName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "O campo Segundo Nome é obrigatório.")]
             [StringLength(20, ErrorMessage = "O campo {0} deve ter, pelo menos {2} e máximo {1} caracteres.", MinimumLength = 3)]
             [Display(Name = "Segundo Nome")]
             public string LastName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "O campo Cargo é obrigatório.")]
             [Display(Name = "Cargo")]
             public Occupations Occupation { get; set; }
 
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "O campo Email é obrigatório.")]
+            [EmailAddress(ErrorMessage = "Email não é válido.")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Required(ErrorMessage = "O campo Palavra Passe é obrigatório.")]
+            [StringLength(100, ErrorMessage = "O campo {0} deve ter, pelo menos {2} e máximo {1} caracteres.", MinimumLength = 6)]
+            [DataType(DataType.Password, ErrorMessage = "A palavra passe deve ter pelo menos uma letra minúscula ('a' - 'z'), uma letra maiúscula ('A' - 'Z') e um número ('0' - '9').") ]
+            [Display(Name = "Palavra Passe")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Confirmar Palavra Passe")]
+            [Compare("Password", ErrorMessage = "A palavra passe e a palavra passe de confirmação não coincidem.")]
             public string ConfirmPassword { get; set; }
         }
 
