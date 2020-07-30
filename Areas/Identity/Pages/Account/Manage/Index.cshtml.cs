@@ -41,6 +41,9 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Segundo Nome")]
             public string LastName { get; set; }
 
+            [Required]
+            [Display(Name = "Cargo")]
+            public Occupations Occupation { get; set; }
 
             [Phone]
             [Display(Name = "Telemóvel")]
@@ -58,6 +61,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Occupation = user.Occupation,
                 PhoneNumber = phoneNumber
             };
         }
@@ -107,6 +111,11 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             if (Input.LastName != user.LastName)
             {
                 user.LastName = Input.LastName;
+            }
+
+            if (Input.Occupation != user.Occupation)
+            {
+                user.Occupation = Input.Occupation;
             }
 
 

@@ -16,5 +16,7 @@ namespace Attendance_Performance_Control.Models
         [Required]
         public string LastName { get; set; }
 
+        [Required]
+        public Occupations Occupation { get; set; }
     }
 }
