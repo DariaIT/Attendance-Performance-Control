@@ -31,8 +31,8 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "O campo Email é obrigatório.")]
+            [EmailAddress(ErrorMessage = "Email não é válido.")]
             public string Email { get; set; }
         }
 

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Attendance_Performance_Control.Models;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 
 namespace Attendance_Performance_Control
 {
@@ -51,7 +52,29 @@ namespace Attendance_Performance_Control
                 options.RequestCultureProviders = new List<IRequestCultureProvider>();
             });
 
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(x => $"O valor '{x}' não é válido.");
+                options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
+                    $"O valor {x} deve ser o número.");
+                options.ModelBindingMessageProvider.SetMissingBindRequiredValueAccessor(x =>
+                    $"O valor para '{x}' deve ser fornecido");
+                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((x, y) =>
+                    $"O valor '{x}' não é válido para {y}.");
+                options.ModelBindingMessageProvider.SetMissingKeyOrValueAccessor(() => "O valor é obrigatório.");
+                options.ModelBindingMessageProvider.SetUnknownValueIsInvalidAccessor(x =>
+                    $"O valor fornecido não é válido para {x}.");
+                options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x => $"O valor '{x}' não é válido.");
+                options.ModelBindingMessageProvider.SetMissingRequestBodyRequiredValueAccessor(() =>
+                    "O valor não pode ser nulo");
+                options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(x =>
+                    $"O valor '{x}' não é válido.");
+                options.ModelBindingMessageProvider.SetNonPropertyUnknownValueIsInvalidAccessor(() =>
+                    "O valor fornecido não é válido.");
+                options.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
+                    "O valor deve ser o número.");
+            });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -61,7 +84,9 @@ namespace Attendance_Performance_Control
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddErrorDescriber<CustomIdentityError>();
             services.AddControllersWithViews();
+            //override identity errors
             services.AddRazorPages();
+
 
             // Add default options Identity configuration
             services.Configure<IdentityOptions>(options =>
