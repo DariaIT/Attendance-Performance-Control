@@ -58,7 +58,8 @@ namespace Attendance_Performance_Control
             services.AddDefaultIdentity<ApplicationUser>(options =>
                     options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddErrorDescriber<CustomIdentityError>();
             services.AddControllersWithViews();
             services.AddRazorPages();
 
