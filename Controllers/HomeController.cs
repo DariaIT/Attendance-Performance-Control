@@ -20,7 +20,6 @@ namespace Attendance_Performance_Control.Controllers
 
         public IActionResult Index()
         {
-            var user = HttpContext.User.IsInRole("Admin");
             return View();
         }
 
