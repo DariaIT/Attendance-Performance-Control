@@ -34,20 +34,20 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Required]
+            [Required(ErrorMessage = "O campo Palavra Passe Atual é obrigatório.")]
             [DataType(DataType.Password)]
-            [Display(Name = "Current password")]
+            [Display(Name = "Palavra passe atual")]
             public string OldPassword { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "New password")]
+            [Required(ErrorMessage = "O campo Palavra Passe Nova é obrigatório.")]
+            [StringLength(100, ErrorMessage = "O campo {0} deve ter, pelo menos {2} e máximo {1} caracteres.", MinimumLength = 6)]
+            [DataType(DataType.Password, ErrorMessage = "A palavra passe deve ter pelo menos uma letra minúscula ('a' - 'z'), uma letra maiúscula ('A' - 'Z') e um número ('0' - '9').")]
+            [Display(Name = "Palavra passe nova")]
             public string NewPassword { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm new password")]
-            [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+            [Display(Name = "Confirmar Palavra Passe")]
+            [Compare("NewPassword", ErrorMessage = "A palavra passe e a palavra passe de confirmação não coincidem.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -56,7 +56,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Não foi possível carregar utilizador com o ID '{_userManager.GetUserId(User)}'.");
             }
 
             var hasPassword = await _userManager.HasPasswordAsync(user);
@@ -78,7 +78,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Não foi possível carregar utilizador com o ID '{_userManager.GetUserId(User)}'.");
             }
 
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
@@ -93,7 +93,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
-            StatusMessage = "Your password has been changed.";
+            StatusMessage = "A sua palavra passe foi alterada.";
 
             return RedirectToPage();
         }

@@ -33,19 +33,19 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Required]
+            [Required(ErrorMessage = "O campo Primeiro Nome é obrigatório.")]
             [Display(Name = "Primeiro Nome")]
             public string FirstName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "O campo Segundo Nome é obrigatório.")]
             [Display(Name = "Segundo Nome")]
             public string LastName { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "O campo Cargo é obrigatório.")]
             [Display(Name = "Cargo")]
             public Occupations Occupation { get; set; }
 
-            [Phone]
+            [Phone(ErrorMessage = "O valor fornecido não é válido para número de telemóvel")]
             [Display(Name = "Telemóvel")]
             public string PhoneNumber { get; set; }
         }
@@ -71,10 +71,14 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Não foi possível carregar utilizador com o ID '{_userManager.GetUserId(User)}'.");
             }
 
             await LoadAsync(user);
+
+            //Pass info to view if user is in role of admin
+            ViewData["IsInRoleAdmin"] = await _userManager.IsInRoleAsync(user, "Admin");
+
             return Page();
         }
 
@@ -83,7 +87,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Não foi possível carregar utilizador com o ID '{_userManager.GetUserId(User)}'.");
             }
 
             if (!ModelState.IsValid)
@@ -98,7 +102,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
                 var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
                 if (!setPhoneResult.Succeeded)
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
+                    StatusMessage = "Erro inesperado ao tentar definir o número de telefone.";
                     return RedirectToPage();
                 }
             }
@@ -120,7 +124,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "O seu perfil foi atualizado.";
             return RedirectToPage();
         }
     }

@@ -83,6 +83,14 @@ namespace Attendance_Performance_Control
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddErrorDescriber<CustomIdentityError>();
+
+            //services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+            //    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+            //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            //});
+
             services.AddControllersWithViews();
             //override identity errors
             services.AddRazorPages();
