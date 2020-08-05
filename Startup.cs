@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Attendance_Performance_Control.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 
 namespace Attendance_Performance_Control
@@ -83,6 +84,11 @@ namespace Attendance_Performance_Control
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddErrorDescriber<CustomIdentityError>();
+
+            //services for SendGrid email sender
+            services.AddTransient<IEmailSender, EmailSender>();
+            //configure a class for secret keys:  SendGrid API and UserName
+            services.Configure<AuthMessageSenderOptions>(Configuration);
 
             //services.AddAuthentication(options =>
             //{
