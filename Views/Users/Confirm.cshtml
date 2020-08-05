@@ -1,0 +1,39 @@
+﻿@model ApplicationUser
+@{
+    ViewData["Title"] = "Confirmar Utilizador";
+}
+
+
+<div class="row">
+    <div class="col-md-4 offset-md-4 p-2">
+        <h2 class="text-center">@ViewData["Title"]</h2>
+        <p>
+            Esta página serve para confirmar o registo de utilizador. Apos de confirmação utilizador
+            registado vai receber o email de confirmação do registo e pode começar utilizar a aplicação.
+        </p>
+        <hr />
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        Primeiro Nome
+        @Html.DisplayFor(model => model.FirstName)
+
+        Segundo Nome
+        @Html.DisplayFor(model => model.LastName)
+
+        Email
+        @Html.DisplayFor(model => model.Email)
+
+        Nº Telemóvel
+        @Html.DisplayFor(model => model.PhoneNumber)
+
+        Cargo
+        @Html.DisplayFor(model => model.Occupation)
+
+        <form method="post">
+            <form method="post">
+                <button type="submit" class="btn btn-primary" asp-action="ConfirmUser" asp-route-Id="@Model.Id" asp-route-confirm="1">Confirmar</button>
+            </form>
+        </form>
+
+    </div>
+</div>
