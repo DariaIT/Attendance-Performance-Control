@@ -14,5 +14,9 @@ namespace Attendance_Performance_Control.Data
             : base(options)
         {
         }
+
+        public DbSet<DayRecord> DayRecords { get; set; }
+        public DbSet<TimeRecord> TimeRecords { get; set; }
+        public DbSet<IntervalRecord> IntervalRecords { get; set; }
     }
 }

@@ -114,7 +114,7 @@ namespace Attendance_Performance_Control
                 options.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromHours(24);
                 options.Lockout.MaxFailedAccessAttempts = 7;
                 options.Lockout.AllowedForNewUsers = true;
 

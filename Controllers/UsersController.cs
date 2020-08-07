@@ -76,7 +76,7 @@ namespace Attendance_Performance_Control.Controllers
                     try
                     {
                         await _emailSender.SendEmailAsync(user.Email, "Confirmação do Registo",
-                            $"Caro funcionário, o seu registo em aplicação 'Previa Safe' está confirmado por Administrador, pode começar a utilizar. Obrigado.");
+                            $"<h1>PreviaSafe</h1><br />Caro funcionário, o seu registo em aplicação 'Previa Safe' está confirmado por Administrador, pode começar a utilizar. Obrigado.");
                     }
                     catch (Exception e)
                     {
@@ -85,7 +85,7 @@ namespace Attendance_Performance_Control.Controllers
                                                                "notifique o administrador do sistema.");
                         return View(user);
                     }
-                    ViewData["Success"] =
+                    TempData["Success"] =
                         "O registo de utilizador está confirmado e email de confirmação está enviado.";
                     //ModelState.AddModelError("confirmsuccess", "O registo de utilizador está confirmado e email de confirmação está enviado.");
                     return RedirectToAction(nameof(Index));
