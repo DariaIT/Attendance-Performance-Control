@@ -25,9 +25,7 @@
         <h5 class="pt-3">Cargo</h5>
         @Html.DisplayFor(model => model.Occupation)
         <form method="post">
-            <form method="post">
-                <button type="submit" class="btn btn-primary mt-4" asp-action="Confirm" asp-route-Id="@Model.Id">Confirmar</button>
-            </form>
+            <button type="submit" class="btn btn-primary mt-4" asp-action="Confirm" asp-route-Id="@Model.Id">Confirmar</button>
         </form>
 
     </div>

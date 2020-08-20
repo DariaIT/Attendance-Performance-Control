@@ -15,10 +15,6 @@ namespace Attendance_Performance_Control.Models
 
         public DateTime? EndTime { get; set; }
 
-        //@ store time of record saving - DateTime.Now
-        [Required]
-        public DateTime RecordTime { get; set; }
-
 
         public int DayRecordId { get; set; }
         public virtual DayRecord DayRecord { get; set; }

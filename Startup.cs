@@ -171,7 +171,9 @@ namespace Attendance_Performance_Control
             app.UseRequestLocalization();
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+
+            //for using files .css .js in wwwroot folder
+            app.UseStaticFiles(); 
 
             app.UseRouting();
 

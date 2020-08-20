@@ -1,0 +1,215 @@
+﻿@using Microsoft.AspNetCore.Razor.Language.Extensions
+@using Microsoft.EntityFrameworkCore.Query.Internal
+@model IEnumerable<Attendance_Performance_Control.Models.UserRecordViewModel>
+
+@{
+    ViewData["Title"] = "Livro de Ponto";
+}
+
+
+@*Timer*@
+<form method="post">
+    <span id="hour">00</span> : <span id="minute">00</span> : <span id="seconds">00</span>
+
+    <button type="submit" id="start-btn" class="btn btn-primary" asp-action="Index" asp-route-start="1">Start</button>
+    <button type="submit" id="stop-btn" class="btn btn-primary" style="display:none" asp-action="Index" asp-route-start="0">Stop</button>
+
+</form>
+@*End Timer*@
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover text-center">
+        <thead>
+            <tr>
+                <th></th>
+                <th scope="col">
+                    <a class="sortLink" asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]">@Html.DisplayNameFor(model => model.Data)
+                        <i class="fa fa-sort-amount-down"></i>
+                        </a>
+                </th>
+                <th scope="col">
+                    @Html.DisplayNameFor(model => model.DayStartTime)
+
+                </th>
+                <th scope="col">
+                    @Html.DisplayNameFor(model => model.DayEndTime)
+                </th>
+                <th scope="col">
+                    Total
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+               
+                <tr class="recordLine" data-toggle="collapse" data-target="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)" role="button" aria-expanded="false" aria-controls="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                   
+
+                    @if (item.IntervalsList.Count > 0)
+                    {
+                        <td>
+                            <i class="fa fa-caret-right"></i>
+
+                        </td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    <td>
+                        @item.DayStartTime.ToShortDateString()
+                    </td>
+                    <td>
+                        @item.DayStartTime.ToShortTimeString()
+                    </td>
+                    <td>
+                        @{
+                            if (item.DayEndTime != null)
+                            {
+                                var endDate = (DateTime) item.DayEndTime;
+                                var shotEndDate = endDate.ToShortTimeString();
+                                @Html.Raw(@shotEndDate)
+                            }
+                        }
+
+                    </td>
+                    <td>
+                        @{
+                            var totalDate = (DateTime) item.DayEndTime - item.DayStartTime;
+                            var data = totalDate.ToString("hh\\:mm\\:ss");
+                            @Html.Raw(@data)
+                        }
+                    </td>
+                   
+                </tr>
+               
+                    @if (item.IntervalsList.Count > 0)
+                    {
+                        <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                            <td class="font-weight-bold" colspan="5">Intervalos</td>
+                        </tr>
+                        @foreach (var interval in item.IntervalsList)
+                        {
+
+                            <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                                <td></td>
+                                <td>
+                                    Descrição
+                                    @Html.DisplayFor(modelItem => interval.Description)
+                                </td>
+                                <td>
+                                    @interval.StartTime.ToShortTimeString()
+                                </td>
+                                <td>
+                                    @interval.EndTime.ToShortTimeString()
+                                </td>
+                                <td>
+                                    @{
+                                        var totalIntervalTime = interval.StartTime - interval.EndTime;
+                                        var totalTime = totalIntervalTime.ToString("hh\\:mm\\:ss");
+                                        @Html.Raw(@totalTime)
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+
+                    }
+            }
+<tbody />
+    </table>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            var param = getUrlParameter("sortOrder");
+            if (param === "data_asc") {
+                $(this).find('.sortLink i').toggleClass('fa-sort-amount-down fa-sort-amount-up-alt');
+            }
+        });
+
+        //change icon on record line on click
+        $('.recordLine').click(function(event) {
+            $(this).find('i').toggleClass('fa-caret-right fa-caret-down');
+        });
+
+
+        //function to get values from Url by parameter name (var tech = getUrlParameter('technology');)
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                //string array with parameters splited by &
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                //get parameter value
+                sParameterName = sURLVariables[i].split('=');
+
+                //if our parameter exist but undefined - return false, otherwise decode e return string value
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? false : decodeURIComponent(sParameterName[1]);
+                }
+            }
+            //return false if parameter not in URL
+            return false;
+        };
+
+
+
+        //change icon on sort data on click
+        //$('#sortLink').click(function (event) {
+        //    $(this).find('i').toggleClass('fa-sort-amount-down fa-sort-amount-up-alt');
+        //});
+
+        //function responsible for timer
+        window.onload = () => {
+            let hour = 0;
+            let minute = 0;
+            let seconds = 0;
+            let totalSeconds = @ViewBag.totalSeconds;
+            let intervalId = null;
+
+            $(this).toggleClass('expand').nextUntil('tr.header').fadeToggle(100);
+
+            //if timer running on page open
+            if (@ViewBag.totalSeconds != 0) {
+                intervalId = setInterval(startTimer, 1000);
+                //hide start button
+                var x = document.getElementById('start-btn');
+                x.style.display = "none";
+                //show stop button
+                var y = document.getElementById('stop-btn');
+                y.style.display = "inline";
+            }
+
+
+            function startTimer() {
+                ++totalSeconds;
+                hour = Math.floor(totalSeconds / 3600);
+                minute = Math.floor((totalSeconds - hour * 3600) / 60);
+                seconds = totalSeconds - (hour * 3600 + minute * 60);
+
+                //format date 01, 02, 03 ...
+                if (seconds < 10) {
+                    seconds = "0" + seconds;
+                }
+                if (minute < 10) {
+                    minute = "0" + minute;
+                }
+                if (hour < 10) {
+                    hour = "0" + hour;
+                }
+
+                document.getElementById("hour").innerHTML = hour;
+                document.getElementById("minute").innerHTML = minute;
+                document.getElementById("seconds").innerHTML = seconds;
+            }
+        }
+
+    </script>
+}

@@ -6,7 +6,7 @@
     <title>@ViewData["Title"] - Attendance_Performance_Control</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
-    @*DataTable - jquery library*@
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
 
 
 
@@ -50,6 +50,7 @@
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.5/js/dataTables.responsive.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.5/js/responsive.bootstrap4.min.js"></script>
 
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#UsersTable').DataTable({
@@ -65,6 +66,8 @@
                 }
             });
         });
+
+       
     </script>
     @RenderSection("Scripts", required: false)
 </body>

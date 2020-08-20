@@ -3,6 +3,14 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    @Html.ActionLink("User List", "Index", "Users")
+    @{
+        if ((bool) @ViewData["IsInRoleAdmin"])
+        {
+            @Html.ActionLink("User List", "Index", "Users")
+        }
+        else
+        {
+            @Html.ActionLink("Livro de Ponto", "Index", "Records")
+        }
+    }
 </div>
