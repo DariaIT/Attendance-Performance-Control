@@ -16,7 +16,7 @@ namespace Attendance_Performance_Control.Models
         [Required]
         public DateTime EndTime { get; set; }
 
-        public string Description { get; set; }
+        public IntervalTypes? IntervalType { get; set; }
 
 
         public int DayRecordId { get; set; }

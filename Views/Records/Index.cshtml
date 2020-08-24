@@ -7,7 +7,7 @@
 }
 
 
-@*Timer*@
+<!--Timer-->
 <form method="post">
     <span id="hour">00</span> : <span id="minute">00</span> : <span id="seconds">00</span>
 
@@ -15,17 +15,29 @@
     <button type="submit" id="stop-btn" class="btn btn-primary" style="display:none" asp-action="Index" asp-route-start="0">Stop</button>
 
 </form>
-@*End Timer*@
-
+<!-- End Timer-->
+<!--Search by Date-->
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            <input class="datepicker-bottom-right" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </p>
+    </div>
+</form>
+<!--End Search by Date-->
+<!--Records Table-->
 <div class="table-responsive">
     <table class="table table-bordered table-hover text-center">
         <thead>
             <tr>
                 <th></th>
                 <th scope="col">
-                    <a class="sortLink" asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]">@Html.DisplayNameFor(model => model.Data)
+                    <a class="sortLink" asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]">
+                        @Html.DisplayNameFor(model => model.Data)
                         <i class="fa fa-sort-amount-down"></i>
-                        </a>
+                    </a>
                 </th>
                 <th scope="col">
                     @Html.DisplayNameFor(model => model.DayStartTime)
@@ -42,9 +54,9 @@
         <tbody>
             @foreach (var item in Model)
             {
-               
+
                 <tr class="recordLine" data-toggle="collapse" data-target="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)" role="button" aria-expanded="false" aria-controls="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
-                   
+
 
                     @if (item.IntervalsList.Count > 0)
                     {
@@ -67,7 +79,7 @@
                         @{
                             if (item.DayEndTime != null)
                             {
-                                var endDate = (DateTime) item.DayEndTime;
+                                var endDate = (DateTime)item.DayEndTime;
                                 var shotEndDate = endDate.ToShortTimeString();
                                 @Html.Raw(@shotEndDate)
                             }
@@ -76,60 +88,66 @@
                     </td>
                     <td>
                         @{
-                            var totalDate = (DateTime) item.DayEndTime - item.DayStartTime;
+                            var totalDate = (DateTime)item.DayEndTime - item.DayStartTime;
                             var data = totalDate.ToString("hh\\:mm\\:ss");
                             @Html.Raw(@data)
                         }
                     </td>
-                   
+
                 </tr>
-               
-                    @if (item.IntervalsList.Count > 0)
+
+                @if (item.IntervalsList.Count > 0)
+                {
+                    <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                        <td class="font-weight-bold" colspan="5">Intervalos</td>
+                    </tr>
+                    @foreach (var interval in item.IntervalsList)
                     {
+
                         <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
-                            <td class="font-weight-bold" colspan="5">Intervalos</td>
+                            <td></td>
+                            <td>
+                                Descrição
+                                <!--add enum list same as for users with edit and save interval by id ---
+                                    pass id as hidden?-->
+                            </td>
+                            <td>
+                                @interval.StartTime.ToShortTimeString()
+                            </td>
+                            <td>
+                                @interval.EndTime.ToShortTimeString()
+                            </td>
+                            <td>
+                                @{
+                                    var totalIntervalTime = interval.StartTime - interval.EndTime;
+                                    var totalTime = totalIntervalTime.ToString("hh\\:mm\\:ss");
+                                    @Html.Raw(@totalTime)
+                                }
+                            </td>
                         </tr>
-                        @foreach (var interval in item.IntervalsList)
-                        {
-
-                            <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
-                                <td></td>
-                                <td>
-                                    Descrição
-                                    @Html.DisplayFor(modelItem => interval.Description)
-                                </td>
-                                <td>
-                                    @interval.StartTime.ToShortTimeString()
-                                </td>
-                                <td>
-                                    @interval.EndTime.ToShortTimeString()
-                                </td>
-                                <td>
-                                    @{
-                                        var totalIntervalTime = interval.StartTime - interval.EndTime;
-                                        var totalTime = totalIntervalTime.ToString("hh\\:mm\\:ss");
-                                        @Html.Raw(@totalTime)
-                                    }
-                                </td>
-                            </tr>
-                        }
-
-
                     }
+
+
+                }
             }
-<tbody />
+        <tbody />
     </table>
 </div>
-
+<!--End Records Table-->
 
 @section Scripts {
+    @*<link rel="stylesheet" href="~/lib/datepicker/datepicker.css" />
+    <script src="~/lib/datepicker/datepicker.js"></script>*@
+
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
+            //change icon on data column search
             var param = getUrlParameter("sortOrder");
             if (param === "data_asc") {
                 $(this).find('.sortLink i').toggleClass('fa-sort-amount-down fa-sort-amount-up-alt');
             }
+
         });
 
         //change icon on record line on click

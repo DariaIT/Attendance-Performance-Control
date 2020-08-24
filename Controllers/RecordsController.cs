@@ -32,24 +32,27 @@ namespace Attendance_Performance_Control.Controllers
         // Normal Get: Timer is could be running or not (totalsecond = 0 or Nºseconds)
 
         [HttpGet]
-        public async Task<IActionResult> Index (string sortOrder)
+        public async Task<IActionResult> Index (string sortOrder, string searchString)
         {
             List<UserRecordViewModel> listOfRecords;
             //sorting by data
             ViewData["DateSortParam"] = String.IsNullOrEmpty(sortOrder) ? "data_asc" : "";
+            ViewData["CurrentFilter"] = searchString;
 
-            switch (sortOrder)
+            //return list of records of current user in descending order
+            listOfRecords = await CreateUserRecordsModel();
+
+            if (!String.IsNullOrEmpty(searchString))
             {
-                case "data_asc":
-                    //return list of records of current user in ascending order
-                    listOfRecords = await CreateUserRecordsModel();
-                    listOfRecords = listOfRecords.OrderBy(c => c.Data).ToList();
-                    break;
-                default:
-                    //return list of records of current user in descending order
-                     listOfRecords = await CreateUserRecordsModel();
-                    break;
+                listOfRecords = listOfRecords.Where(c=>c.Data.Date.ToString().Contains(searchString)).ToList();
             }
+
+            if (String.Compare(sortOrder, "data_asc")==0)
+            {
+                //return list of records of current user in ascending order
+                listOfRecords = listOfRecords.OrderBy(c => c.Data).ToList();
+            }
+            
 
             //find total seconds to show with javascript timer
             //@ 0 or NºSeconds

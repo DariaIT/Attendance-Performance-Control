@@ -122,6 +122,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
                 user.Occupation = Input.Occupation;
             }
 
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "O seu perfil foi atualizado.";
