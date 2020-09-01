@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="profile-element">
+                    <img class="img-fluid" src=@Url.Content("~/images/logo/logo-previa-safe-white.png") />
+                </div>
+                <div class="logo-element">
+                    <img class="img-fluid" src=@Url.Content("~/images/logo/logo-previa-safe-no-text-white.png") />
+                </div>
+            </li>
+            <li class="@Html.IsSelected(controller: "Home", action: "Index")">
+                <a href="@Url.Action("Index", "Home")"><i class="fa fa-border-all"></i> <span class="nav-label">Painel do Controlo</span> <span class="label label-primary float-right">Início</span></a>
+            </li>
+
+            <!--Show just for Admin-->
+            @if (@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)
+            {
+                <li class="@Html.IsSelected(controller: "Users", action: "Index")">
+                    <a href="@Url.Action("Index", "Users")"><i class="fa fa-server"></i> <span class="nav-label">Utilizadores</span></a>
+                </li>
+            }
+            <!--End show just for Admin-->
+
+            @*<li class="@Html.IsSelected(controller: "Records", action: "Index")">
+                <a href="@Url.Action("Index", "Records")"><i class="fa fa-book-open"></i> <span class="nav-label">Livro de Ponto</span></a>
+            </li>*@
+
+            <li class="@Html.IsSelected(controller: "Records", action: "Index") @Html.IsSelected(controller: "Reports", action: "Index")">
+                <a href="#"><i class="fa fa-book-open"></i> <span class="nav-label">Livro de Ponto</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level @Html.IsSelected(action: "Index", controller: "Records", cssClass: "collapse in") @Html.IsSelected(action: "Index", controller: "Reports", cssClass: "collapse in")">
+                    <li class="@Html.IsSelected(action: "Index", controller: "Records")"><a href="@Url.Action("Index", "Records")">Registos</a></li>
+                    <li class="@Html.IsSelected(action: "Index", controller: "Reports")"><a href="@Url.Action("Index", "Reports")">Relatorios</a></li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+</nav>

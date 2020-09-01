@@ -11,6 +11,7 @@ using Attendance_Performance_Control.Data;
 using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using System.Threading;
 
 namespace Attendance_Performance_Control.Controllers
 {
@@ -30,6 +31,8 @@ namespace Attendance_Performance_Control.Controllers
 
 
         // Normal Get: Timer is could be running or not (totalsecond = 0 or Nºseconds)
+        //search parameter
+        //sort parameter
 
         [HttpGet]
         public async Task<IActionResult> Index (string sortOrder, string searchString)
@@ -62,16 +65,29 @@ namespace Attendance_Performance_Control.Controllers
         }
 
 
-        //2 Cases of call of this function
+        //3 Cases of call of this function
         //1. Start button Click - string start = 1
         //2. Stop button click - string start = 0
+        //3. Set Interval Type
         [HttpPost]
         [ActionName("Index")]
-        public async Task<IActionResult> IndexPost(string start, string sortOrder)
+        public async Task<IActionResult> IndexPost(string start, string sortOrder, int intervalId, IntervalTypes? IntervalType)
         {
             List<UserRecordViewModel> listOfRecords;
             //sorting by data
             ViewData["DateSortParam"] = String.IsNullOrEmpty(sortOrder) ? "data_asc" : "";
+
+            //find total seconds to show with javascript timer
+            //@ 0 or NºSeconds
+            @ViewBag.totalSeconds = await GetTotalSecondsOfLastTimeRecord();
+
+            //if intervalId has value, save intervalType in Interval Description
+            if (intervalId!=0 && IntervalType != null)
+            {
+                var thisInterval = _context.IntervalRecords.Where(c => c.Id == intervalId).FirstOrDefault();
+                thisInterval.IntervalType = IntervalType;
+                await _context.SaveChangesAsync();
+            }
 
             //if start is true
             if (String.Compare(start, "1") == 0)
@@ -79,7 +95,8 @@ namespace Attendance_Performance_Control.Controllers
                 Start();
                 @ViewBag.totalSeconds = 1;
             }
-            else
+            //if stop is true
+            else if (String.Compare(start, "0") == 0)
             {
                 Stop();
                 @ViewBag.totalSeconds = 0;
@@ -97,6 +114,7 @@ namespace Attendance_Performance_Control.Controllers
                     listOfRecords = await CreateUserRecordsModel();
                     break;
             }
+
 
             return View(listOfRecords);
         }

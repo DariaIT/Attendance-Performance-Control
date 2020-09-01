@@ -1,16 +1,7 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Painel do Controlo";
 }
 
 <div class="text-center">
-    @{
-        if ((bool) @ViewData["IsInRoleAdmin"])
-        {
-            @Html.ActionLink("User List", "Index", "Users")
-        }
-        else
-        {
-            @Html.ActionLink("Livro de Ponto", "Index", "Records")
-        }
-    }
+   
 </div>

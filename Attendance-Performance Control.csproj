@@ -32,7 +32,6 @@
   <ItemGroup>
     <Folder Include="Areas\Identity\Pages\Account\" />
     <Folder Include="Areas\Identity\Pages\Account\Manage\" />
-    <Folder Include="Views\Records\" />
   </ItemGroup>
 
 </Project>

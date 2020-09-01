@@ -1,52 +1,47 @@
 ﻿@page
 @model RegisterModel
 @{
+    Layout = "/Views/Shared/_Layout_Login.cshtml";
     ViewData["Title"] = "Registar";
 }
 
 
-<div class="row">
-    <div class="col-md-4 offset-md-4 p-2">
-        <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2 class="text-center">@ViewData["Title"]</h2>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Input.FirstName"></label>
-                <input asp-for="Input.FirstName" class="form-control" />
-                @*<span asp-validation-for="Input.FirstName" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.LastName"></label>
-                <input asp-for="Input.LastName" class="form-control" />
-                @*<span asp-validation-for="Input.LastName" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Occupation"></label>
-                <select asp-for="Input.Occupation" asp-items="@(Html.GetEnumSelectList<Occupations>().Where(c=>c.Value!="0"))"  class="form-control">
-                    <option>Escolha o cargo ...</option>
-                </select>
-                @*<span asp-validation-for="Input.LastName" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Email"></label>
-                <input asp-for="Input.Email" class="form-control" />
-                @*<span asp-validation-for="Input.Email" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" />
-                @*<span asp-validation-for="Input.Password" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-                <label asp-for="Input.ConfirmPassword"></label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" />
-                @*<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>*@
-            </div>
-            <button type="submit" class="btn btn-primary">Registar</button>
-        </form>
+<div class="middle-box text-center loginscreen animate__animated animate__fadeIn mt-2">
+    <div>
+        <img class="img-fluid" src=@Url.Content("~/images/logo/logo-previa-safe.png") />
     </div>
+    <h3 class="m-t">Bem-Vindo à Prévia Safe</h3>
+
+    <form class="m-t" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <hr />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group">
+            <input asp-for="Input.FirstName" class="form-control" placeholder="Primeiro Nome" />
+        </div>
+        <div class="form-group">
+            <input asp-for="Input.LastName" class="form-control" placeholder="Segundo Nome" />
+        </div>
+        <div class="form-group">
+            <select asp-for="Input.Occupation" asp-items="@(Html.GetEnumSelectList<Occupations>().Where(c=>c.Value!="0"))" class="form-control">
+                <option>Escolha o cargo ...</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+        </div>
+        <div class="form-group">
+            <input asp-for="Input.Password" class="form-control" placeholder="Palavra-Passe" />
+        </div>
+        <div class="form-group">
+            <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Confirmar Palavra-Passe" />
+        </div>
+        <button type="submit" class="btn btn-primary block full-width m-b">Registar</button>
+
+        <p class="text-muted text-center"><small>Já tem conta?</small></p>
+        <a class="btn btn-sm btn-white btn-block" asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Login</a>
+    </form>
 </div>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

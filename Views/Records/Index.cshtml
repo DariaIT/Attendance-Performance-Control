@@ -107,9 +107,49 @@
                         <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
                             <td></td>
                             <td>
-                                Descrição
-                                <!--add enum list same as for users with edit and save interval by id ---
-                                    pass id as hidden?-->
+                                @if (interval.IntervalType.HasValue)
+                                {
+                                    <div class="@interval.IntervalType">
+                                        <i class="fa fa-utensils icone pr-2"></i>
+                                        @interval.IntervalType.GetDisplayName()
+                                    </div>
+                                }
+                                else
+                                {
+                            <form asp-action="Index" asp-controller="Records" method="post" class="d-inline-flex">
+                                <input type="hidden" id="@interval.Id" name="intervalId" value="@interval.Id" />
+                                @*@Html.DropDownList("IntervalType", Html.GetEnumSelectList<IntervalTypes>(), "Escolha a descrição ...", new { @class = "form-control" })*@
+                                @*<select id="IntervalType" name="IntervalType" asp-items="Html.GetEnumSelectList<IntervalTypes>()" class="form-control">
+            <option value="">
+                Escolha a descrição ...
+            </option>
+        </select>*@
+                                <!--Custom dropdown list for Intervals Types-->
+                            <select id="IntervalType" name="IntervalType" class="form-control" style="font-family: 'open sans', 'Helvetica Neue' , Helvetica, Arial, sans-serif, 'Font Awesome 5 Free Solid' ">
+                                <option value="">
+                                    Escolha a descrição ...
+                                </option>
+                                <option value="0" class="fa-utensils">
+                                    &#xf2e7; &nbsp;
+                                    @IntervalTypes.Interval1.GetDisplayName()
+                                </option>
+                                <option value="1" class="fa-coffee">
+                                    &#xf0f4; &nbsp;
+                                    @IntervalTypes.Interval2.GetDisplayName()
+                                </option>
+                                <option value="2" class="fa-ambulance">
+                                    &#xf0f9; &nbsp;
+                                    @IntervalTypes.Interval3.GetDisplayName()
+                                </option>
+                                <option value="3" class="fa-exclamation-circle">
+                                    &#xf06a; &nbsp;
+                                    @IntervalTypes.Interval4.GetDisplayName()
+                                </option>
+                            </select>
+                                <!--End of Custom dropdown list for Intervals Types-->
+                                <button type="submit" class="btn" title="Guardar"><i class="fa fa-save fa-2x icone"></i></button>
+                            </form>
+                                }
                             </td>
                             <td>
                                 @interval.StartTime.ToShortTimeString()
@@ -137,7 +177,7 @@
 
 @section Scripts {
     @*<link rel="stylesheet" href="~/lib/datepicker/datepicker.css" />
-    <script src="~/lib/datepicker/datepicker.js"></script>*@
+        <script src="~/lib/datepicker/datepicker.js"></script>*@
 
     <script type="text/javascript">
 
@@ -148,12 +188,27 @@
                 $(this).find('.sortLink i').toggleClass('fa-sort-amount-down fa-sort-amount-up-alt');
             }
 
+                //change icon of interval on load, depend de Enum type=Id
+                // Interval1-Lunch icon defined by default
+            $(this).find('.Interval2 i').removeClass('fa-utensils').addClass('fa-coffee');
+            $(this).find('.Interval3 i').removeClass('fa-utensils').addClass('fa-ambulance');
+            $(this).find('.Interval4 i').removeClass('fa-utensils').addClass('fa-exclamation-circle');
         });
+
+        //window.onload = function () {
+        //    if ($('.Interval2 i').is('fa-utensils')) {
+        //        $(this).find('.Interval2 i').removeClass('fa-utensils').addClass('fa-coffee');
+        //    }
+        //};
+
 
         //change icon on record line on click
         $('.recordLine').click(function(event) {
             $(this).find('i').toggleClass('fa-caret-right fa-caret-down');
         });
+
+
+
 
 
         //function to get values from Url by parameter name (var tech = getUrlParameter('technology');)

@@ -10,18 +10,63 @@
       "library": "twitter-bootstrap@4.3.1",
       "destination": "wwwroot/lib/bootstrap/dist/",
       "files": [
+        "css/bootstrap.min.css",
         "css/bootstrap.css",
+        "css/bootstrap-grid.min.css",
         "css/bootstrap-grid.css",
+        "css/bootstrap-reboot.min.css",
         "css/bootstrap-reboot.css",
-        "js/bootstrap.js"
+        "js/bootstrap.min.js",
+        "js/bootstrap.js",
+        "js/bootstrap.bundle.min.js",
+        "js/bootstrap.bundle.js"
       ]
     },
     {
-      "library": "jquery@3.3.1",
-      "destination": "wwwroot/lib/jquery/dist/",
+      "library": "animate.css@4.1.0",
+      "destination": "wwwroot/css/",
       "files": [
-        "jquery.js"
+        "animate.min.css",
+        "animate.css"
       ]
+    },
+    {
+      "library": "jquery@3.5.1",
+      "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "jqueryui@1.12.1",
+      "destination": "wwwroot/lib/jqueryui/"
+    },
+    {
+      "library": "moment.js@2.27.0",
+      "destination": "wwwroot/lib/moment.js/"
+    },
+    {
+      "library": "pace@0.7.8",
+      "destination": "wwwroot/lib/pace/"
+    },
+    {
+      "library": "jQuery-slimScroll@1.3.8",
+      "destination": "wwwroot/lib/jQuery-slimScroll/"
+    },
+    {
+      "library": "prettify@r298",
+      "destination": "wwwroot/lib/prettify/",
+      "files": [
+        "prettify.min.js",
+        "prettify.min.css",
+        "prettify.css",
+        "prettify.js"
+      ]
+    },
+    {
+      "library": "jquery-sparklines@2.1.2",
+      "destination": "wwwroot/lib/jquery-sparklines/"
+    },
+    {
+      "library": "metisMenu@3.0.6",
+      "destination": "wwwroot/lib/metisMenu/"
     }
   ]
 }
