@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Razor.Language.Extensions
 @using Microsoft.EntityFrameworkCore.Query.Internal
-@model IEnumerable<Attendance_Performance_Control.Models.UserRecordViewModel>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@using X.PagedList.Web.Common
+@model IPagedList<Attendance_Performance_Control.Models.UserRecordViewModel>
 
 @{
     ViewData["Title"] = "Livro de Ponto";
@@ -16,13 +19,15 @@
 
 </form>
 <!-- End Timer-->
+
 <!--Search by Date-->
 <form asp-action="Index" method="get">
-    <div class="form-actions no-color">
+    <div class="form-group">
         <p>
-            <input class="datepicker-bottom-right" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
-            <input type="submit" value="Search" class="btn btn-default" /> |
-            <a asp-action="Index">Back to Full List</a>
+            <input type="text" name="dateSearch" value="@ViewData["dateSearch"]" />
+            @*<input type="submit" value="Search" class="btn btn-default" /> |
+        <a asp-action="Index">Back to Full List</a>*@
+            <button type="submit" value="Pesquisar" class="btn icone" data-toggle="tooltip" data-placement="right" title="Pesquisar"><i class="fas fa-search-plus fa-2x"></i></button>
         </p>
     </div>
 </form>
@@ -34,17 +39,16 @@
             <tr>
                 <th></th>
                 <th scope="col">
-                    <a class="sortLink" asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]">
-                        @Html.DisplayNameFor(model => model.Data)
+                    <a class="sortLink" asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]" asp-route-dateSearch="@ViewData["dateSearch"]">
+                        Data
                         <i class="fa fa-sort-amount-down"></i>
                     </a>
                 </th>
                 <th scope="col">
-                    @Html.DisplayNameFor(model => model.DayStartTime)
-
+                    Início
                 </th>
                 <th scope="col">
-                    @Html.DisplayNameFor(model => model.DayEndTime)
+                    Fim
                 </th>
                 <th scope="col">
                     Total
@@ -116,39 +120,39 @@
                                 }
                                 else
                                 {
-                            <form asp-action="Index" asp-controller="Records" method="post" class="d-inline-flex">
-                                <input type="hidden" id="@interval.Id" name="intervalId" value="@interval.Id" />
-                                @*@Html.DropDownList("IntervalType", Html.GetEnumSelectList<IntervalTypes>(), "Escolha a descrição ...", new { @class = "form-control" })*@
-                                @*<select id="IntervalType" name="IntervalType" asp-items="Html.GetEnumSelectList<IntervalTypes>()" class="form-control">
-            <option value="">
-                Escolha a descrição ...
-            </option>
-        </select>*@
-                                <!--Custom dropdown list for Intervals Types-->
-                            <select id="IntervalType" name="IntervalType" class="form-control" style="font-family: 'open sans', 'Helvetica Neue' , Helvetica, Arial, sans-serif, 'Font Awesome 5 Free Solid' ">
-                                <option value="">
-                                    Escolha a descrição ...
-                                </option>
-                                <option value="0" class="fa-utensils">
-                                    &#xf2e7; &nbsp;
-                                    @IntervalTypes.Interval1.GetDisplayName()
-                                </option>
-                                <option value="1" class="fa-coffee">
-                                    &#xf0f4; &nbsp;
-                                    @IntervalTypes.Interval2.GetDisplayName()
-                                </option>
-                                <option value="2" class="fa-ambulance">
-                                    &#xf0f9; &nbsp;
-                                    @IntervalTypes.Interval3.GetDisplayName()
-                                </option>
-                                <option value="3" class="fa-exclamation-circle">
-                                    &#xf06a; &nbsp;
-                                    @IntervalTypes.Interval4.GetDisplayName()
-                                </option>
-                            </select>
-                                <!--End of Custom dropdown list for Intervals Types-->
-                                <button type="submit" class="btn" title="Guardar"><i class="fa fa-save fa-2x icone"></i></button>
-                            </form>
+                                    <form asp-action="Index" asp-controller="Records" method="post" class="d-inline-flex">
+                                        <input type="hidden" id="@interval.Id" name="intervalId" value="@interval.Id" />
+                                        @*@Html.DropDownList("IntervalType", Html.GetEnumSelectList<IntervalTypes>(), "Escolha a descrição ...", new { @class = "form-control" })*@
+                                        @*<select id="IntervalType" name="IntervalType" asp-items="Html.GetEnumSelectList<IntervalTypes>()" class="form-control">
+                                                <option value="">
+                                                    Escolha a descrição ...
+                                                </option>
+                                            </select>*@
+                                        <!--Custom dropdown list for Intervals Types-->
+                                        <select id="IntervalType" name="IntervalType" class="form-control" style="font-family: 'open sans', 'Helvetica Neue' , Helvetica, Arial, sans-serif, 'Font Awesome 5 Free Solid' ">
+                                            <option value="">
+                                                Escolha a descrição ...
+                                            </option>
+                                            <option value="0" class="fa-utensils">
+                                                &#xf2e7; &nbsp;
+                                                @IntervalTypes.Interval1.GetDisplayName()
+                                            </option>
+                                            <option value="1" class="fa-coffee">
+                                                &#xf0f4; &nbsp;
+                                                @IntervalTypes.Interval2.GetDisplayName()
+                                            </option>
+                                            <option value="2" class="fa-ambulance">
+                                                &#xf0f9; &nbsp;
+                                                @IntervalTypes.Interval3.GetDisplayName()
+                                            </option>
+                                            <option value="3" class="fa-exclamation-circle">
+                                                &#xf06a; &nbsp;
+                                                @IntervalTypes.Interval4.GetDisplayName()
+                                            </option>
+                                        </select>
+                                        <!--End of Custom dropdown list for Intervals Types-->
+                                        <button type="submit" class="btn" title="Guardar"><i class="fa fa-save fa-2x icone"></i></button>
+                                    </form>
                                 }
                             </td>
                             <td>
@@ -174,6 +178,25 @@
     </table>
 </div>
 <!--End Records Table-->
+<!--Pagging-->
+<div class="float-right">
+    @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index",
+       new
+       {
+           page,
+           sortOrder = Context.Request.Query["DateSortParam"],
+           dateSearch = Context.Request.Query["dateSearch"]
+       }),
+     new PagedListRenderOptionsBase
+     {
+         LiElementClasses = new string[] { "page-item" },
+         PageClasses = new string[] { "page-link" },
+         Display = PagedListDisplayMode.IfNeeded
+
+     })
+</div>
+<!--End Pagging-->
+
 
 @section Scripts {
     @*<link rel="stylesheet" href="~/lib/datepicker/datepicker.css" />

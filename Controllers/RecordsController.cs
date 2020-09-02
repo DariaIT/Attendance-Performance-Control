@@ -12,6 +12,7 @@ using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
+using X.PagedList;
 
 namespace Attendance_Performance_Control.Controllers
 {
@@ -35,19 +36,19 @@ namespace Attendance_Performance_Control.Controllers
         //sort parameter
 
         [HttpGet]
-        public async Task<IActionResult> Index (string sortOrder, string searchString)
+        public async Task<IActionResult> Index (string sortOrder, string dateSearch, int? page)
         {
             List<UserRecordViewModel> listOfRecords;
             //sorting by data
             ViewData["DateSortParam"] = String.IsNullOrEmpty(sortOrder) ? "data_asc" : "";
-            ViewData["CurrentFilter"] = searchString;
+            ViewData["dateSearch"] = dateSearch;
 
             //return list of records of current user in descending order
             listOfRecords = await CreateUserRecordsModel();
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!String.IsNullOrEmpty(dateSearch))
             {
-                listOfRecords = listOfRecords.Where(c=>c.Data.Date.ToString().Contains(searchString)).ToList();
+                listOfRecords = listOfRecords.Where(c=>c.Data.Date.ToString().Contains(dateSearch)).ToList();
             }
 
             if (String.Compare(sortOrder, "data_asc")==0)
@@ -61,7 +62,11 @@ namespace Attendance_Performance_Control.Controllers
             //@ 0 or NºSeconds
             @ViewBag.totalSeconds = await GetTotalSecondsOfLastTimeRecord();
 
-            return View(listOfRecords);
+            var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
+            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 5); // will only contain 25 products max because of the pageSize
+
+            return View(onePageOfrecords);
+
         }
 
 
