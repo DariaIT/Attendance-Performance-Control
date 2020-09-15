@@ -32,11 +32,11 @@
                 if(!((bool)@ViewData["IsInRoleAdmin"]))
                 {
                     <div class="form-group">
-                        <label asp-for="Input.Occupation"></label>
-                        <select asp-for="Input.Occupation" asp-items="@(Html.GetEnumSelectList<Occupations>().Where(c => c.Value != "0"))" class="form-control">
+                        <label asp-for="Input.OccupationId"></label>
+                        <select asp-for="Input.OccupationId" asp-items="@ViewData["Occupations"] as SelectList" class="form-control">
                             <option>Escolha o cargo ...</option>
                         </select>
-                        <span asp-validation-for="Input.Occupation" class="text-danger"></span>
+                        <span asp-validation-for="Input.OccupationId" class="text-danger"></span>
                     </div>
                 }
             }

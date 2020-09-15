@@ -216,7 +216,7 @@ namespace Attendance_Performance_Control
                     FirstName = "Ângelo",
                     LastName = "Marum",
                     Email = email,
-                    Occupation = 0, // Occupation-Cargo - Diretor Geral (Hidden for other users)
+                    OccupationId = 8, // Occupation-Cargo - Diretor Geral (Hidden for other users)
                     UserName = email,
                     EmailConfirmed = true
                 };

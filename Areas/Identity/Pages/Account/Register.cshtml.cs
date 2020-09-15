@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Attendance_Performance_Control.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
 {
@@ -24,18 +26,18 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _emailSender = emailSender;
+            _context = context;
         }
 
         [BindProperty]
@@ -60,7 +62,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
 
             [Required(ErrorMessage = "O campo Cargo é obrigatório.")]
             [Display(Name = "Cargo")]
-            public Occupations Occupation { get; set; }
+            public int OccupationId { get; set; }
 
             [Required(ErrorMessage = "O campo Email é obrigatório.")]
             [EmailAddress(ErrorMessage = "Email não é válido.")]
@@ -83,6 +85,8 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            var occupationsList = await _context.Occupations.Where(c => c.Id != 8).OrderBy(c=>c.OccupationName).ToListAsync();
+            ViewData["Occupations"] = new SelectList(occupationsList, "Id", "OccupationName");
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -95,7 +99,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
                 {
                     FirstName = Input.FirstName,
                     LastName = Input.LastName,
-                    Occupation = Input.Occupation,
+                    OccupationId = Input.OccupationId,
                     UserName = Input.Email,
                     Email = Input.Email
                 };

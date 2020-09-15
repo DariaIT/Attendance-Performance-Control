@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Attendance_Performance_Control.Data;
 using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 {
@@ -14,13 +17,16 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         public string Username { get; set; }
@@ -43,7 +49,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
 
             [Required(ErrorMessage = "O campo Cargo é obrigatório.")]
             [Display(Name = "Cargo")]
-            public Occupations Occupation { get; set; }
+            public int OccupationId { get; set; }
 
             [Phone(ErrorMessage = "O valor fornecido não é válido para número de telemóvel")]
             [Display(Name = "Telemóvel")]
@@ -61,7 +67,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Occupation = user.Occupation,
+                OccupationId = user.OccupationId,
                 PhoneNumber = phoneNumber
             };
         }
@@ -73,6 +79,9 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Não foi possível carregar utilizador com o ID '{_userManager.GetUserId(User)}'.");
             }
+
+            var occupationsList = await _context.Occupations.Where(c => c.Id != 8).OrderBy(c => c.OccupationName).ToListAsync();
+            ViewData["Occupations"] = new SelectList(occupationsList, "Id", "OcupationName");
 
             await LoadAsync(user);
 
@@ -117,9 +126,9 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
                 user.LastName = Input.LastName;
             }
 
-            if (Input.Occupation != user.Occupation)
+            if (Input.OccupationId != user.OccupationId)
             {
-                user.Occupation = Input.Occupation;
+                user.OccupationId = Input.OccupationId;
             }
 
             await _userManager.UpdateAsync(user);

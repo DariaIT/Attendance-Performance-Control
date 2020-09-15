@@ -1,0 +1,138 @@
+﻿@model Attendance_Performance_Control.Models.EditUserViewModel
+
+@{
+    ViewData["Title"] = "Editar Utilizador";
+}
+
+
+<div class="row">
+    <div>
+        <a class="icone pt-3 pl-3" title="Voltar" asp-action="Index">
+            <i class="fa fa-2x fa-arrow-circle-left"></i>
+        </a>
+    </div>
+    <div class="col-md-4 offset-md-4 p-2">
+        <h2 class="text-center">@ViewData["Title"]</h2>
+        <hr />
+        <form asp-action="Edit">
+            @if (Html.ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <div class="form-group">
+                <p>Ativar / Desativar Utilizador</p>
+                <div class="switch">
+                    <div class="onoffswitch">
+                        <input type="checkbox" asp-for="IsActive" class="onoffswitch-checkbox">
+                        <label class="onoffswitch-label" asp-for="IsActive">
+                            <span class="onoffswitch-inner"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" disabled="disabled" />
+                <input type="hidden" asp-for="FirstName" />
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" disabled="disabled" />
+                <input type="hidden" asp-for="LastName" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" disabled="disabled" />
+                <input type="hidden" asp-for="Email" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DepartmentName" class="control-label"></label>
+                <input type="text" asp-for="DepartmentName" class="form-control" disabled="disabled" />
+                <input type="hidden" asp-for="DepartmentName" />
+            </div>
+            <div class="form-group">
+                <label asp-for="OccupationId" class="control-label"></label>
+                <select asp-for="OccupationId" class="form-control" asp-items="@Model.OccupationsList">
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartWorkTime" class="control-label"></label>
+                <div class="input-group date" id="timepickerStartWorkTimeEdit" data-target-input="nearest">
+                    <input type="text" asp-for="StartWorkTime" class="form-control datetimepicker-input" data-target="#timepickerStartWorkTimeEdit" />
+                    <div class="input-group-append" data-target="#timepickerStartWorkTimeEdit" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndWorkTime" class="control-label"></label>
+                <div class="input-group date" id="timepickerEndWorkTime" data-target-input="nearest">
+                    <input type="text" asp-for="EndWorkTime" class="form-control datetimepicker-input" data-target="#timepickerEndWorkTime" />
+                    <div class="input-group-append" data-target="#timepickerEndWorkTime" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartLunchTime" class="control-label"></label>
+                <div class="input-group date" id="timepickerStartLunchTime" data-target-input="nearest">
+                    <input type="text" asp-for="StartLunchTime" class="form-control datetimepicker-input" data-target="#timepickerStartLunchTime" />
+                    <div class="input-group-append" data-target="#timepickerStartLunchTime" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndLunchTime" class="control-label"></label>
+                <div class="input-group date" id="timepickerEndLunchTime" data-target-input="nearest">
+                    <input type="text" asp-for="EndLunchTime" class="form-control datetimepicker-input" data-target="#timepickerEndLunchTime" />
+                    <div class="input-group-append" data-target="#timepickerEndLunchTime" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        $(function () {
+            $('#timepickerStartWorkTimeEdit').datetimepicker({
+                format: 'LT',
+                locale: 'pt'
+            });
+
+            $('#timepickerEndWorkTime').datetimepicker({
+                format: 'LT',
+                locale: 'pt'
+            });
+
+            $('#timepickerStartLunchTime').datetimepicker({
+                format: 'LT',
+                locale: 'pt'
+            });
+
+            $('#timepickerEndLunchTime').datetimepicker({
+                format: 'LT',
+                locale: 'pt'
+            });
+        });
+    </script>
+}

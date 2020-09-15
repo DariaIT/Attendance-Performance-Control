@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using X.PagedList;
+using System.Runtime.InteropServices;
 
 namespace Attendance_Performance_Control.Controllers
 {
@@ -36,34 +37,42 @@ namespace Attendance_Performance_Control.Controllers
         //sort parameter
 
         [HttpGet]
-        public async Task<IActionResult> Index (string sortOrder, string dateSearch, int? page)
+        public async Task<IActionResult> Index(string dateSortParam, string dateRangeSearch, int? page)
         {
             List<UserRecordViewModel> listOfRecords;
             //sorting by data
-            ViewData["DateSortParam"] = String.IsNullOrEmpty(sortOrder) ? "data_asc" : "";
-            ViewData["dateSearch"] = dateSearch;
+            if (page != null && page > 1)
+                ViewData["dateSortParam"] = dateSortParam;
+            else
+                ViewData["dateSortParam"] = String.IsNullOrEmpty(dateSortParam) ? "data_asc" : "";
+
+            //GetDefaultRangeDataPicker() - get default date for datarangepicker - "This Month" - ex. "01/09/2020 - 30/09/2020"
+            //Initialize DataRangePicker: initial default value = "This Month" or date period chosen by client
+            dateRangeSearch = String.IsNullOrEmpty(dateRangeSearch) ? GetDefaultRangeDataPicker() : dateRangeSearch;
+            ViewData["dateRangeSearch"] = dateRangeSearch;
+
+            //find startDate and EndDate from dateRangeSearch string
+            var thisStringArray = dateRangeSearch.Split(" ");
+            var startDate = DateTime.Parse(thisStringArray[0]);
+            var endDate = DateTime.Parse(thisStringArray[2]);
 
             //return list of records of current user in descending order
-            listOfRecords = await CreateUserRecordsModel();
-
-            if (!String.IsNullOrEmpty(dateSearch))
-            {
-                listOfRecords = listOfRecords.Where(c=>c.Data.Date.ToString().Contains(dateSearch)).ToList();
-            }
-
-            if (String.Compare(sortOrder, "data_asc")==0)
+            //return list of records in dateRangeSearch period: default "This Month" or defined by client
+            listOfRecords = await CreateUserRecordsModel(startDate, endDate);
+            
+            if (String.Compare(dateSortParam, "data_asc") == 0)
             {
                 //return list of records of current user in ascending order
                 listOfRecords = listOfRecords.OrderBy(c => c.Data).ToList();
             }
-            
+
 
             //find total seconds to show with javascript timer
             //@ 0 or NºSeconds
             @ViewBag.totalSeconds = await GetTotalSecondsOfLastTimeRecord();
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
-            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 5); // will only contain 25 products max because of the pageSize
+            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 10); // will only contain 25 products max because of the pageSize
 
             return View(onePageOfrecords);
 
@@ -76,18 +85,31 @@ namespace Attendance_Performance_Control.Controllers
         //3. Set Interval Type
         [HttpPost]
         [ActionName("Index")]
-        public async Task<IActionResult> IndexPost(string start, string sortOrder, int intervalId, IntervalTypes? IntervalType)
+        public async Task<IActionResult> IndexPost(string start, string dateSortParam, string dateRangeSearch, int intervalId, IntervalTypes? IntervalType, int? page)
         {
             List<UserRecordViewModel> listOfRecords;
             //sorting by data
-            ViewData["DateSortParam"] = String.IsNullOrEmpty(sortOrder) ? "data_asc" : "";
+            if (page != null && page > 1)
+                ViewData["dateSortParam"] = dateSortParam;
+            else
+                ViewData["dateSortParam"] = String.IsNullOrEmpty(dateSortParam) ? "data_asc" : "";
+
+            //GetDefaultRangeDataPicker() - get default date for datarangepicker - "This Month" - ex. "01/09/2020 - 30/09/2020"
+            //Initialize DataRangePicker: initial default value = "This Month" or date period chosen by client
+            dateRangeSearch = String.IsNullOrEmpty(dateRangeSearch) ? GetDefaultRangeDataPicker() : dateRangeSearch;
+            ViewData["dateRangeSearch"] = dateRangeSearch;
+
+            //find startDate and EndDate from dateRangeSearch string
+            var thisStringArray = dateRangeSearch.Split(" ");
+            var startDate = DateTime.Parse(thisStringArray[0]);
+            var endDate = DateTime.Parse(thisStringArray[2]);
 
             //find total seconds to show with javascript timer
             //@ 0 or NºSeconds
             @ViewBag.totalSeconds = await GetTotalSecondsOfLastTimeRecord();
 
             //if intervalId has value, save intervalType in Interval Description
-            if (intervalId!=0 && IntervalType != null)
+            if (intervalId != 0 && IntervalType != null)
             {
                 var thisInterval = _context.IntervalRecords.Where(c => c.Id == intervalId).FirstOrDefault();
                 thisInterval.IntervalType = IntervalType;
@@ -107,21 +129,29 @@ namespace Attendance_Performance_Control.Controllers
                 @ViewBag.totalSeconds = 0;
             }
 
-            switch (sortOrder)
+            //return list of records of current user in descending order
+            //return list of records in dateRangeSearch period: default "This Month" or defined by client
+            listOfRecords = await CreateUserRecordsModel(startDate, endDate);
+
+            if (String.Compare(dateSortParam, "data_asc") == 0)
             {
-                case "data_asc":
-                    //return list of records of current user in ascending order
-                    listOfRecords = await CreateUserRecordsModel();
-                    listOfRecords = listOfRecords.OrderBy(c => c.Data).ToList();
-                    break;
-                default:
-                    //return list of records of current user in descending order
-                    listOfRecords = await CreateUserRecordsModel();
-                    break;
+                //return list of records of current user in ascending order
+                listOfRecords = listOfRecords.OrderBy(c => c.Data).ToList();
             }
 
+            var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
+            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 7); // will only contain 25 products max because of the pageSize
 
-            return View(listOfRecords);
+            return View(onePageOfrecords);
+        }
+
+
+        private string GetDefaultRangeDataPicker()
+        {
+            DateTime date = DateTime.Now;
+            var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            return String.Concat(firstDayOfMonth.ToShortDateString(), " - ", lastDayOfMonth.ToShortDateString());
         }
 
         private async Task<double> GetTotalSecondsOfLastTimeRecord()
@@ -156,7 +186,7 @@ namespace Attendance_Performance_Control.Controllers
         }
 
 
-        public async Task<List<UserRecordViewModel>> CreateUserRecordsModel()
+        public async Task<List<UserRecordViewModel>> CreateUserRecordsModel(DateTime startDate, DateTime endDate)
         {
             //current user
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
@@ -164,9 +194,9 @@ namespace Attendance_Performance_Control.Controllers
             //Initialize List of UserRecordViewModel
             var listOfUserRecordViewModel = new List<UserRecordViewModel>();
 
-            //Get All Records of current user
+            //Get All Records of current user in period "startDate to endDate"
             var recordsListOfCurrentUser =
-                await _context.DayRecords.Where(c => c.UserId == currentUser.Id).OrderByDescending(c => c.Data).ToListAsync();
+                await _context.DayRecords.Where(c => c.UserId == currentUser.Id && c.Data.Date >= startDate && c.Data.Date <= endDate).OrderByDescending(c => c.Data).ToListAsync();
 
             //create list of UserRecordViewModel
             foreach (var record in recordsListOfCurrentUser)

@@ -13,19 +13,23 @@
 
 <environment names="Development">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="~/lib/pace/themes/green/pace-theme-minimal.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
     <link rel="stylesheet" href="~/lib/metisMenu/metisMenu.css" />
     <link rel="stylesheet" href="~/css/animate.css" />
+    <link rel="stylesheet" href="~/lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
 </environment>
 <environment names="Staging,Production">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-daterangepicker/daterangepicker.min.css" />
     <link rel="stylesheet" href="~/lib/pace/themes/green/pace-theme-minimal.min.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/metisMenu/metisMenu.min.css" />
     <link rel="stylesheet" href="~/css/animate.css" />
+    <link rel="stylesheet" href="~/lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
 </environment>
@@ -47,8 +51,9 @@
             @*@Html.Partial("_TopNavbar", @ViewData["Title"])*@
 
             <!-- Main view  -->
+        <div class="container-fluid pt-2 pb-5 mb-5">
             @RenderBody()
-
+        </div>
             <!-- Footer -->
             <partial name="_Footer" />
 
@@ -61,6 +66,9 @@
     <environment names="Development">
         <script src="~/lib/jquery/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+        <script src="~/lib/moment.js/moment-with-locales.js"></script>
+        <script src="~/lib/bootstrap-daterangepicker/daterangepicker.js"></script>
+        <script src="~/lib/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.js"></script>
         <script src="~/lib/metisMenu/metisMenu.js"></script>
         <script src="~/lib/jQuery-slimScroll/jquery.slimscroll.js"></script>
         <script src="~/lib/pace/pace.js"></script>
@@ -70,6 +78,9 @@
     <environment names="Staging,Production">
         <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/lib/moment.js/moment-with-locales.min.js"></script>
+        <script src="~/lib/bootstrap-daterangepicker/daterangepicker.min.js"></script>
+        <script src="~/lib/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
         <script src="~/lib/metisMenu/metisMenu.min.js"></script>
         <script src="~/lib/pace/pace.min.js"></script>
         <script src="~/lib/jQuery-slimScroll/jquery.slimscroll.min.js"></script>
@@ -101,8 +112,6 @@
                     "infoFiltered": "(filtrado de _MAX_ regitros totais)"
                 }
             });
-
-            //$("#metismenu").metisMenu();
         });
         
         

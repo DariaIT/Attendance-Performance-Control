@@ -23,7 +23,7 @@ namespace Attendance_Performance_Control.Models
         [Display(Name = "Fim")]
         public DateTime? DayEndTime { get; set; }
         public List<IntervalRecord> IntervalsList { get; set; }
-   
+        //public DateTime TotalHorasPorDay { get; set; }
     }
 
     

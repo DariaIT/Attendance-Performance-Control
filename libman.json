@@ -67,6 +67,22 @@
     {
       "library": "metisMenu@3.0.6",
       "destination": "wwwroot/lib/metisMenu/"
+    },
+    {
+      "library": "bootstrap-daterangepicker@3.0.5",
+      "destination": "wwwroot/lib/bootstrap-daterangepicker/",
+      "files": [
+        "daterangepicker.css",
+        "daterangepicker.js",
+        "daterangepicker.min.css",
+        "daterangepicker.min.css.map",
+        "daterangepicker.min.js",
+        "daterangepicker.min.js.map"
+      ]
+    },
+    {
+      "library": "tempusdominus-bootstrap-4@5.1.2",
+      "destination": "wwwroot/lib/tempusdominus-bootstrap-4/"
     }
   ]
 }

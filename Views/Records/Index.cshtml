@@ -10,36 +10,44 @@
 }
 
 
-<!--Timer-->
-<form method="post">
-    <span id="hour">00</span> : <span id="minute">00</span> : <span id="seconds">00</span>
-
-    <button type="submit" id="start-btn" class="btn btn-primary" asp-action="Index" asp-route-start="1">Start</button>
-    <button type="submit" id="stop-btn" class="btn btn-primary" style="display:none" asp-action="Index" asp-route-start="0">Stop</button>
-
-</form>
-<!-- End Timer-->
-
-<!--Search by Date-->
-<form asp-action="Index" method="get">
-    <div class="form-group">
-        <p>
-            <input type="text" name="dateSearch" value="@ViewData["dateSearch"]" />
-            @*<input type="submit" value="Search" class="btn btn-default" /> |
-        <a asp-action="Index">Back to Full List</a>*@
-            <button type="submit" value="Pesquisar" class="btn icone" data-toggle="tooltip" data-placement="right" title="Pesquisar"><i class="fas fa-search-plus fa-2x"></i></button>
-        </p>
+<div class="row pt-5 pb-3 pr-2 pl-2 animate__animated animate__fadeIn">
+    <div class="col-6">
+        <!--Search by Date - submit by jquery function-->
+        <form id="dateRangePicker" asp-action="Index" method="get">
+            <div class="form-group d-inline-flex flex-nowrap">
+                <input id="bootstrap_daterange_calendar" type="text" name="dateRangeSearch" class="form-control" value="@ViewData["dateRangeSearch"]" />
+                <label for="bootstrap_daterange_calendar">
+                    <i class="fa fa-calendar-alt fa-2x pl-1 pt-1 icone"></i>
+                </label>
+            </div>
+        </form>
+        <!--End Search by Date-->
     </div>
-</form>
-<!--End Search by Date-->
+    <div class="col-6">
+        <!--Timer-->
+        <form method="post" class="float-right form-inline">
+            <div id="timer" class="text-dark pr-2">
+                <span id="hour">00</span> : <span id="minute">00</span> : <span id="seconds">00</span>
+            </div>
+            <button type="submit" id="start-btn" class="btn btn-primary" asp-action="Index" asp-route-start="1" asp-route-page="@Context.Request.Query["page"]" asp-route-dateSortParam="@Context.Request.Query["dateSortParam"]" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]">
+                Start
+            </button>
+            <button type="submit" id="stop-btn" class="btn btn-primary" style="display:none" asp-action="Index" asp-route-start="0" asp-route-page="@Context.Request.Query["page"]" asp-route-dateSortParam="@Context.Request.Query["dateSortParam"]" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]">
+                Stop
+            </button>
+        </form>
+        <!-- End Timer-->
+    </div>
+</div>
+
 <!--Records Table-->
-<div class="table-responsive">
+<div class="table-responsive animate__animated animate__fadeIn">
     <table class="table table-bordered table-hover text-center">
-        <thead>
+        <thead class="thead-dark">
             <tr>
                 <th></th>
                 <th scope="col">
-                    <a class="sortLink" asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]" asp-route-dateSearch="@ViewData["dateSearch"]">
+                    <a class="sortLink icone" asp-action="Index" asp-route-dateSortParam="@ViewData["dateSortParam"]" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]">
                         Data
                         <i class="fa fa-sort-amount-down"></i>
                     </a>
@@ -59,7 +67,7 @@
             @foreach (var item in Model)
             {
 
-                <tr class="recordLine" data-toggle="collapse" data-target="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)" role="button" aria-expanded="false" aria-controls="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                <tr class="table-success recordLine" data-toggle="collapse" data-target="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)" role="button" aria-expanded="false" aria-controls="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
 
 
                     @if (item.IntervalsList.Count > 0)
@@ -122,12 +130,6 @@
                                 {
                                     <form asp-action="Index" asp-controller="Records" method="post" class="d-inline-flex">
                                         <input type="hidden" id="@interval.Id" name="intervalId" value="@interval.Id" />
-                                        @*@Html.DropDownList("IntervalType", Html.GetEnumSelectList<IntervalTypes>(), "Escolha a descrição ...", new { @class = "form-control" })*@
-                                        @*<select id="IntervalType" name="IntervalType" asp-items="Html.GetEnumSelectList<IntervalTypes>()" class="form-control">
-                                                <option value="">
-                                                    Escolha a descrição ...
-                                                </option>
-                                            </select>*@
                                         <!--Custom dropdown list for Intervals Types-->
                                         <select id="IntervalType" name="IntervalType" class="form-control" style="font-family: 'open sans', 'Helvetica Neue' , Helvetica, Arial, sans-serif, 'Font Awesome 5 Free Solid' ">
                                             <option value="">
@@ -151,7 +153,9 @@
                                             </option>
                                         </select>
                                         <!--End of Custom dropdown list for Intervals Types-->
-                                        <button type="submit" class="btn" title="Guardar"><i class="fa fa-save fa-2x icone"></i></button>
+                                        <button type="submit" class="btn" title="Guardar" asp-route-page="@Context.Request.Query["page"]" asp-route-dateSortParam="@Context.Request.Query["dateSortParam"]" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]">
+                                            <i class="fa fa-save fa-2x icone"></i>
+                                        </button>
                                     </form>
                                 }
                             </td>
@@ -184,8 +188,8 @@
        new
        {
            page,
-           sortOrder = Context.Request.Query["DateSortParam"],
-           dateSearch = Context.Request.Query["dateSearch"]
+           dateSortParam = Context.Request.Query["dateSortParam"],
+           dateRangeSearch = Context.Request.Query["dateRangeSearch"]
        }),
      new PagedListRenderOptionsBase
      {
@@ -199,14 +203,12 @@
 
 
 @section Scripts {
-    @*<link rel="stylesheet" href="~/lib/datepicker/datepicker.css" />
-        <script src="~/lib/datepicker/datepicker.js"></script>*@
 
     <script type="text/javascript">
 
         $(document).ready(function () {
             //change icon on data column search
-            var param = getUrlParameter("sortOrder");
+            var param = getUrlParameter("dateSortParam");
             if (param === "data_asc") {
                 $(this).find('.sortLink i').toggleClass('fa-sort-amount-down fa-sort-amount-up-alt');
             }
@@ -216,13 +218,66 @@
             $(this).find('.Interval2 i').removeClass('fa-utensils').addClass('fa-coffee');
             $(this).find('.Interval3 i').removeClass('fa-utensils').addClass('fa-ambulance');
             $(this).find('.Interval4 i').removeClass('fa-utensils').addClass('fa-exclamation-circle');
-        });
 
-        //window.onload = function () {
-        //    if ($('.Interval2 i').is('fa-utensils')) {
-        //        $(this).find('.Interval2 i').removeClass('fa-utensils').addClass('fa-coffee');
-        //    }
-        //};
+            //Initialize portuguese date translation
+            moment.locale('pt');
+
+            //bootstrap-daterange picker
+            $('input[name="dateRangeSearch"]').daterangepicker({
+                autoApply: true,
+                showCustomRangeLabel: false,
+                "alwaysShowCalendars": true,
+                //"startDate": moment().startOf('month'),
+                //"endDate": moment().endOf('month'),
+                "ranges": {
+                    'Hoje': [moment(), moment()],
+                    'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Esta semana': [moment().startOf('week'), moment().endOf('week')],
+                    'Semana passada': [moment().startOf('week').subtract(1, 'week'), moment().endOf('week').subtract(1, 'week')],
+                    'Este mês': [moment().startOf('month'), moment().endOf('month')],
+                    'Mês passado': [moment().startOf('month').subtract(1, 'month'), moment().endOf('month').subtract(1, 'month')],
+                    'Este ano': [moment().startOf('year'), moment().endOf('year')],
+                    'Ano passado': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')]
+                },
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "daysOfWeek": [
+                        "Dom",
+                        "Seg",
+                        "Ter",
+                        "Qua",
+                        "Qui",
+                        "Sex",
+                        "Sáb"
+                    ],
+                    "monthNames": [
+                        "Janeiro",
+                        "Fevereiro",
+                        "Março",
+                        "Abril",
+                        "Posso",
+                        "Junho",
+                        "Julho",
+                        "Agosto",
+                        "Setembro",
+                        "Outubro",
+                        "Novembro",
+                        "Dezembro"
+                    ],
+                    "firstDay": 1
+                },
+            }, function (start, end, label) {
+
+            });
+
+            //this function is called every time client choose new date period
+            //automatic form get submit to Index Controller, date is passed via ViewData["dateRangeSearch"]
+            $('input[name="dateRangeSearch"]').on('apply.daterangepicker', function (ev, picker) {
+                $("#dateRangePicker").submit();
+            });
+
+        });
 
 
         //change icon on record line on click

@@ -8,7 +8,7 @@
     <div class="col-md-4 offset-md-4 p-2">
         <h2 class="text-center">@ViewData["Title"]</h2>
         <p style="font-size: 14px">
-            Esta página serve para confirmar o registo de utilizador. Apos de confirmação utilizador
+            Esta página serve para confirmar o registo de utilizador. Apos de confirmação, utilizador
             registado vai receber o email de confirmação do registo e pode começar utilizar a aplicação.
         </p>
         <hr />
@@ -22,11 +22,84 @@
         @Html.DisplayFor(model => model.Email)
         <h5 class="pt-3">Nº Telemóvel</h5>
         @Html.DisplayFor(model => model.PhoneNumber)
+        <h5 class="pt-3">Departamento</h5>
+        @ViewBag.depart
         <h5 class="pt-3">Cargo</h5>
-        @Html.DisplayFor(model => model.Occupation)
-        <form method="post">
-            <button type="submit" class="btn btn-primary mt-4" asp-action="Confirm" asp-route-Id="@Model.Id">Confirmar</button>
-        </form>
+        @ViewBag.cargo
+
+    <form asp-action="Confirm">
+        <h3 class="p-3">Por favor, escolha o horário do funcionário:</h3>
+        <input type="hidden" asp-for="@Model.Id" />
+        <input type="hidden" asp-for="@Model.FirstName" />
+        <input type="hidden" asp-for="@Model.LastName" />
+        <div class="form-group">
+            <label asp-for="StartWorkTime" class="control-label required"></label>
+            <div class="input-group date" id="timepickerStartWorkTime" data-target-input="nearest">
+                <input type="text" asp-for="StartWorkTime" placeholder="ex. 9:00" class="form-control datetimepicker-input" data-target="#timepickerStartWorkTime" />
+                <div class="input-group-append" data-target="#timepickerStartWorkTime" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EndWorkTime" class="control-label required"></label>
+            <div class="input-group date" id="timepickerEndWorkTime" data-target-input="nearest">
+                <input type="text" asp-for="EndWorkTime" placeholder="ex. 18:00" class="form-control datetimepicker-input" data-target="#timepickerEndWorkTime" />
+                <div class="input-group-append" data-target="#timepickerEndWorkTime" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="StartLunchTime" class="control-label"></label>
+            <div class="input-group date" id="timepickerStartLunchTime" data-target-input="nearest">
+                <input type="text" asp-for="StartLunchTime" placeholder="ex. 13:00" class="form-control datetimepicker-input" data-target="#timepickerStartLunchTime" />
+                <div class="input-group-append" data-target="#timepickerStartLunchTime" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EndLunchTime" class="control-label"></label>
+            <div class="input-group date" id="timepickerEndLunchTime" data-target-input="nearest">
+                <input type="text" asp-for="EndLunchTime" placeholder="ex. 14:00" class="form-control datetimepicker-input" data-target="#timepickerEndLunchTime" />
+                <div class="input-group-append" data-target="#timepickerEndLunchTime" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-clock"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Confirmar" class="btn btn-primary" />
+        </div>
+    </form>
 
     </div>
 </div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+            $(function () {
+                $('#timepickerStartWorkTime').datetimepicker({
+                    format: 'LT',
+                    locale: 'pt'
+                });
+
+                $('#timepickerEndWorkTime').datetimepicker({
+                    format: 'LT',
+                    locale: 'pt'
+                });
+
+                $('#timepickerStartLunchTime').datetimepicker({
+                    format: 'LT',
+                    locale: 'pt'
+                });
+
+                $('#timepickerEndLunchTime').datetimepicker({
+                    format: 'LT',
+                    locale: 'pt'
+                });
+            });
+    </script>
+
+}

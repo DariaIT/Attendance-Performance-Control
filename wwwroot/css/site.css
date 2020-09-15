@@ -1,6 +1,7 @@
 ﻿
 /*Custom css*/
 
+/*green icone*/
 .icone {
     color: #1ab394;
 }
@@ -9,6 +10,7 @@
     color: #18a689;
 }
 
+/*Interval type dropdown*/
 #IntervalType {
     max-width: 200px;
     margin:auto;
@@ -19,4 +21,46 @@
         max-width: 150px;
         margin: auto;
     }
+}
+
+#stop-btn {
+    background-color: #f44336;
+    border-color: #f44336;
+}
+
+#stop-btn:hover {
+    background-color: #f22112;
+    border-color: #ea1c0d;
+}
+
+#timer {
+    font-size: 16px;
+    font-weight:600;
+}
+
+#bootstrap_daterange_calendar {
+    max-width: 300px;
+}
+
+/*@media (max-width: 590px) {
+    #bootstrap_daterange_calendar {
+        max-width: 50px;
+    }
+}*/
+
+.nav-pills .nav-link.active {
+    background-color: #1ab394;
+}
+
+    .nav-pills .nav-link.active:hover {
+        background-color: #18a689;
+    }
+
+/*address red asterisk to labelfor for required fields*/
+
+.required:after {
+    content: "*";
+    font-weight: bold;
+    color: #d02629;
+    padding-left: 2px;
 }

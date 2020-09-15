@@ -2,14 +2,17 @@
 @model RegisterConfirmationModel
 @{
     ViewData["Title"] = "Confirmação do Registo";
+    Layout = "/Views/Shared/_Layout_Login.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4 offset-md-4 p-2">
-        <h2 class="text-center">@ViewData["Title"]</h2>
-        <p>
-            Caro funcionário, obrigada para efetuar o registo em aplicação "Previa Safe".
-            Por favor, espera o email da confirmação do registo, apos de aprovação por parte de Administrador.
-        </p>
+<div class="middle-box text-center loginscreen animate__animated animate__fadeIn mt-5">
+    <div>
+        <img class="img-fluid" src=@Url.Content("~/images/logo/logo-previa-safe.png") />
     </div>
+    <h3 class="m-t">@ViewData["Title"]</h3>
+    <p>
+        Caro funcionário, obrigada para efetuar o registo em aplicação "Previa Safe".
+        Por favor, espera o email da confirmação do registo, apos de aprovação por parte de Administrador.
+    </p>
+    <a class="btn btn-primary block full-width m-b" asp-page="./Login">Voltar</a>
 </div>

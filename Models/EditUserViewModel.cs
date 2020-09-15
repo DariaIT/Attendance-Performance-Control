@@ -1,24 +1,37 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace Attendance_Performance_Control.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class EditUserViewModel
     {
         [Required]
-        [Display(Name ="Primeiro Nome")]
+        public string Id {get; set;}
+
+        [Required]
+        [Display(Name = "Primeiro Nome")]
         public string FirstName { get; set; }
 
         [Required]
         [Display(Name = "Segundo Nome")]
         public string LastName { get; set; }
 
-        [Display(Name ="Hora do Início do trabalho")]
+        [Required]
+        public string Email { get; set; }
+
+        [Display(Name = "Departamento")]
+        public string DepartmentName { get; set; }
+
+        [Required]
+        [Display(Name = "Cargo")]
+        public int OccupationId { get; set; }
+        public SelectList OccupationsList { get; set; }
+
+        [Display(Name = "Hora do Início do trabalho")]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:t}")]
         //[RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
         // ErrorMessage = "A data não é valida.")]
@@ -42,11 +55,7 @@ namespace Attendance_Performance_Control.Models
         // ErrorMessage = "A data não é valida.")]
         public DateTime? EndLunchTime { get; set; }
 
-        [Required]
-        [Display(Name = "Cargo")]
-        public int OccupationId { get; set; }
-        public virtual Occupation Occupation {get; set;}
-
-        public string FullName => $"{FirstName} {LastName}";
+        [Display(Name = "Ativar/Desativar Utilizador")]
+        public bool IsActive { get; set; } 
     }
 }

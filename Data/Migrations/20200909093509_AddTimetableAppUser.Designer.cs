@@ -4,14 +4,16 @@ using Attendance_Performance_Control.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Attendance_Performance_Control.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200909093509_AddTimetableAppUser")]
+    partial class AddTimetableAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,7 +211,7 @@ namespace Attendance_Performance_Control.Data.Migrations
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("OccupationName")
+                    b.Property<string>("OcupationName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -224,67 +226,67 @@ namespace Attendance_Performance_Control.Data.Migrations
                         {
                             Id = 1,
                             DepartmentId = 1,
-                            OccupationName = "Coordenadora Dep. Saúde"
+                            OcupationName = "Coordenadora Dep. Saúde"
                         },
                         new
                         {
                             Id = 2,
                             DepartmentId = 1,
-                            OccupationName = "Gestor Clientes Saúde"
+                            OcupationName = "Gestor Clientes Saúde"
                         },
                         new
                         {
                             Id = 3,
                             DepartmentId = 1,
-                            OccupationName = "TDT (Técnico de Diagnóstico e Terapêutica)"
+                            OcupationName = "TDT (Técnico de Diagnóstico e Terapêutica)"
                         },
                         new
                         {
                             Id = 4,
                             DepartmentId = 1,
-                            OccupationName = "Enfermeira"
+                            OcupationName = "Enfermeira"
                         },
                         new
                         {
                             Id = 5,
                             DepartmentId = 2,
-                            OccupationName = "Gestor de Formação"
+                            OcupationName = "Gestor de Formação"
                         },
                         new
                         {
                             Id = 6,
                             DepartmentId = 3,
-                            OccupationName = "Diretor Geral"
+                            OcupationName = "Diretor Geral"
                         },
                         new
                         {
                             Id = 7,
                             DepartmentId = 3,
-                            OccupationName = "Assessora Financeira"
+                            OcupationName = "Assessora Financeira"
                         },
                         new
                         {
                             Id = 8,
                             DepartmentId = 3,
-                            OccupationName = "Técnico Administrativo"
+                            OcupationName = "Técnico Administrativo"
                         },
                         new
                         {
                             Id = 9,
                             DepartmentId = 3,
-                            OccupationName = "Empregada de Limpeza"
+                            OcupationName = "Empregada de Limpeza"
                         },
                         new
                         {
                             Id = 10,
                             DepartmentId = 4,
-                            OccupationName = "Técnico Comercial"
+                            OcupationName = "Técnico Comercial"
                         },
                         new
                         {
                             Id = 11,
                             DepartmentId = 5,
-                            OccupationName = "TSST"
+                            OcupationName = "TSST"
                         });
                 });
 

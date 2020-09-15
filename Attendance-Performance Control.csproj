@@ -13,6 +13,12 @@
     <Compile Remove="Data\Migrations\20200729112824_FirstAndLastName.Designer.cs" />
     <Compile Remove="Data\Migrations\20200807091001_DayTimeIntervalDB.cs" />
     <Compile Remove="Data\Migrations\20200807091001_DayTimeIntervalDB.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200908120357_AddDepartmetsAndOccupations.cs" />
+    <Compile Remove="Data\Migrations\20200908120357_AddDepartmetsAndOccupations.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200908121933_AddDepartmetsAndOccupations.cs" />
+    <Compile Remove="Data\Migrations\20200908121933_AddDepartmetsAndOccupations.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200909093314_AddTimetableAppUser.cs" />
+    <Compile Remove="Data\Migrations\20200909093314_AddTimetableAppUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
