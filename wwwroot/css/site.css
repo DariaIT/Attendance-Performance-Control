@@ -64,3 +64,10 @@
     color: #d02629;
     padding-left: 2px;
 }
+
+.atraso::after {
+    content: "!";
+    font-weight: bold;
+    color: #ed5565;
+    padding-left: 2px;
+}

@@ -59,7 +59,7 @@ namespace Attendance_Performance_Control.Controllers
             //return list of records of current user in descending order
             //return list of records in dateRangeSearch period: default "This Month" or defined by client
             listOfRecords = await CreateUserRecordsModel(startDate, endDate);
-            
+
             if (String.Compare(dateSortParam, "data_asc") == 0)
             {
                 //return list of records of current user in ascending order
@@ -140,7 +140,7 @@ namespace Attendance_Performance_Control.Controllers
             }
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
-            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 7); // will only contain 25 products max because of the pageSize
+            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 7);
 
             return View(onePageOfrecords);
         }
@@ -207,11 +207,39 @@ namespace Attendance_Performance_Control.Controllers
                     Data = record.Data,
                     DayStartTime = await GetDateStartTime(record.Id),
                     DayEndTime = await GetDateEndTime(record.Id),
-                    IntervalsList = await GetIntervalsList(record.Id)
+                    IntervalsList = await GetIntervalsList(record.Id),
+                    StartDayDelayExplanation = record.StartDayDelayExplanation,
+                    EndDayDelayExplanation = record.EndDayDelayExplanation
                 };
+
+                //get sum of all intervals
+                TimeSpan intervalSum = new TimeSpan();
+
+                foreach (var interval in userRecord.IntervalsList)
+                {
+                    intervalSum += interval.EndTime - interval.StartTime;
+                }
+
                 //if do not exist yet DayEndTime - do not show in table
                 if (userRecord.DayEndTime != null)
                 {
+                    //Add TotalHoursPorDay
+                    var TotalHoursPorDay = userRecord.DayEndTime - userRecord.DayStartTime - intervalSum;
+                    userRecord.TotalHoursPorDay = TotalHoursPorDay.Value.ToString("hh\\:mm\\:ss");
+                    //Add Delay flags values
+
+                    //if Today
+                    if (userRecord.Data.Date == DateTime.Now.Date)
+                    {
+                        userRecord.StartDayDelayFlag = userRecord.DayStartTime.TimeOfDay > currentUser.StartWorkTime.Value.AddMinutes(5).TimeOfDay ? true : false;
+                        userRecord.EndDayDelayFlag = userRecord.DayEndTime.Value.AddMinutes(5).TimeOfDay < currentUser.EndWorkTime.Value.TimeOfDay && DateTime.Now.TimeOfDay >= currentUser.EndWorkTime.Value.TimeOfDay ? true : false;
+                    }
+                    //if more then one day - show explanation and edit button
+                    else
+                    {
+                        userRecord.StartDayDelayFlag = userRecord.DayStartTime.TimeOfDay > currentUser.StartWorkTime.Value.AddMinutes(5).TimeOfDay ? true : false;
+                        userRecord.EndDayDelayFlag = userRecord.DayEndTime.Value.AddMinutes(5).TimeOfDay < currentUser.EndWorkTime.Value.TimeOfDay ? true : false;
+                    }
                     listOfUserRecordViewModel.Add(userRecord);
                 }
 
@@ -356,6 +384,98 @@ namespace Attendance_Performance_Control.Controllers
             _context.SaveChanges();
         }
 
+
+        public IActionResult DelayExpl(string data, string StartDayDelayFlag, string EndDayDelayFlag)
+        {
+            if (String.IsNullOrEmpty(data))
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var Data = DateTime.Parse(data);
+            //get DayRecord by Data
+            var thisDateRecord = _context.DayRecords.FirstOrDefault(c => c.Data.Date == Data.Date);
+
+            if(!String.IsNullOrEmpty(StartDayDelayFlag) && thisDateRecord !=null && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
+                ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
+            if (!String.IsNullOrEmpty(EndDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
+                ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
+
+            //resend parameters by ViewData
+            ViewData["Data"] = data;
+            ViewData["StartDayDelayFlag"] = StartDayDelayFlag;
+            ViewData["EndDayDelayFlag"] = EndDayDelayFlag;
+
+            return View();
+        }
+
+
+        [HttpPost]
+        [ActionName("DelayExpl")]
+        public async Task<IActionResult> DelayExplPost(string Data, string ExplText, string StartDayDelayFlag, string EndDayDelayFlag)
+        {
+            if (String.IsNullOrEmpty(Data))
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var data = DateTime.Parse(Data);
+            //get DayRecord by Data
+            var thisDateRecord = _context.DayRecords.FirstOrDefault(c => c.Data.Date == data.Date);
+
+            if (String.IsNullOrWhiteSpace(ExplText))
+            {
+                ModelState.AddModelError(String.Empty, "Por favor, adiciona a explicação.");
+            }
+            else if (ExplText.Length > 50)
+            {
+                ModelState.AddModelError(String.Empty, "A explicação tem de conter máximo 50 caracteres.");
+            }
+            else
+            {
+                try
+                {
+                    //it is a morning delay
+                    if (!String.IsNullOrEmpty(StartDayDelayFlag) && Convert.ToBoolean(StartDayDelayFlag))
+                    {
+                        thisDateRecord.StartDayDelayExplanation = ExplText;
+                        await _context.SaveChangesAsync();
+
+                        TempData["Success"] = "A explicação foi guardado com sucesso.";
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                    //it is a evening delay
+                    else if (!String.IsNullOrEmpty(EndDayDelayFlag) && Convert.ToBoolean(EndDayDelayFlag))
+                    {
+                        thisDateRecord.EndDayDelayExplanation = ExplText;
+                        await _context.SaveChangesAsync();
+
+                        TempData["Success"] = "A explicação foi guardado com sucesso.";
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                catch (Exception)
+                {
+                    TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                }
+            }
+
+            //resend parameters by ViewData
+            ViewData["Data"] = Data;
+            ViewData["StartDayDelayFlag"] = StartDayDelayFlag;
+            ViewData["EndDayDelayFlag"] = EndDayDelayFlag;
+
+            if (!String.IsNullOrEmpty(StartDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
+                ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
+            if (!String.IsNullOrEmpty(EndDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
+                ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
+
+            return View();
+        }
 
 
 

@@ -9,6 +9,28 @@
     ViewData["Title"] = "Livro de Ponto";
 }
 
+<!--Show errors on fail or success-->
+@{
+    if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Success"]
+        </div>
+    }
+    if (TempData["Failure"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Failure"]
+        </div>
+    }
+}
+<!--End Show errors on fail or success-->
 
 <div class="row pt-5 pb-3 pr-2 pl-2 animate__animated animate__fadeIn">
     <div class="col-6">
@@ -42,8 +64,8 @@
 
 <!--Records Table-->
 <div class="table-responsive animate__animated animate__fadeIn">
-    <table class="table table-bordered table-hover text-center">
-        <thead class="thead-dark">
+    <table class="table table-bordered table-striped table-hover text-center">
+        <thead class="thead-light">
             <tr>
                 <th></th>
                 <th scope="col">
@@ -56,7 +78,13 @@
                     Início
                 </th>
                 <th scope="col">
+                    Explicação do atraso
+                </th>
+                <th scope="col">
                     Fim
+                </th>
+                <th scope="col">
+                    Explicação de saida prévia
                 </th>
                 <th scope="col">
                     Total
@@ -67,7 +95,7 @@
             @foreach (var item in Model)
             {
 
-                <tr class="table-success recordLine" data-toggle="collapse" data-target="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)" role="button" aria-expanded="false" aria-controls="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                <tr class="recordLine" data-toggle="collapse" data-target="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)" role="button" aria-expanded="false" aria-controls="@String.Concat(".collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
 
 
                     @if (item.IntervalsList.Count > 0)
@@ -85,38 +113,52 @@
                         @item.DayStartTime.ToShortDateString()
                     </td>
                     <td>
-                        @item.DayStartTime.ToShortTimeString()
+                        @{
+                            var atrasoStyle = item.StartDayDelayFlag && String.IsNullOrEmpty(item.StartDayDelayExplanation) ? "text-danger atraso" : "";
+                        }
+                        <div class="@atrasoStyle">@item.DayStartTime.ToShortTimeString()</div>
                     </td>
                     <td>
-                        @{
-                            if (item.DayEndTime != null)
+                        @{if (item.StartDayDelayFlag)
                             {
-                                var endDate = (DateTime)item.DayEndTime;
-                                var shotEndDate = endDate.ToShortTimeString();
-                                @Html.Raw(@shotEndDate)
+                                @item.StartDayDelayExplanation
+                                <a class="btn p-0" title="Adicionar Explicação" asp-controller="Records" asp-action="DelayExpl" asp-route-data="@item.Data.ToShortDateString()" asp-route-StartDayDelayFlag="@item.StartDayDelayFlag">
+                                    <i style="font-size:16px" class="fa fa-edit icone"></i>
+                                </a>
                             }
                         }
-
                     </td>
                     <td>
                         @{
-                            var totalDate = (DateTime)item.DayEndTime - item.DayStartTime;
-                            var data = totalDate.ToString("hh\\:mm\\:ss");
-                            @Html.Raw(@data)
+                            atrasoStyle = item.EndDayDelayFlag && String.IsNullOrEmpty(item.EndDayDelayExplanation) ? "text-danger atraso" : "";
                         }
+                        <div class="@atrasoStyle">@item.DayEndTime.Value.ToShortTimeString()</div>
+                    </td>
+                    <td>
+                        @{if (item.EndDayDelayFlag)
+                            {
+                                @item.EndDayDelayExplanation
+                                <a class="btn p-0" title="Adicionar Explicação" asp-controller="Records" asp-action="DelayExpl" asp-route-data="@item.Data.ToShortDateString()" asp-route-EndDayDelayFlag="@item.EndDayDelayFlag">
+                                    <i style="font-size:16px" class="fa fa-edit icone"></i>
+                                </a>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @item.TotalHoursPorDay
                     </td>
 
                 </tr>
 
                 @if (item.IntervalsList.Count > 0)
                 {
-                    <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
-                        <td class="font-weight-bold" colspan="5">Intervalos</td>
+                    <tr class="table-light collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                        <td class="font-weight-bold" colspan="7">Intervalos</td>
                     </tr>
                     @foreach (var interval in item.IntervalsList)
                     {
 
-                        <tr class="collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
+                        <tr class="table-light collapse @String.Concat("collapseListIntervals", @item.Data.Date.Day, @item.Data.Date.Month, @item.Data.Date.Year)">
                             <td></td>
                             <td>
                                 @if (interval.IntervalType.HasValue)
@@ -162,9 +204,11 @@
                             <td>
                                 @interval.StartTime.ToShortTimeString()
                             </td>
+                            <td></td>
                             <td>
                                 @interval.EndTime.ToShortTimeString()
                             </td>
+                            <td></td>
                             <td>
                                 @{
                                     var totalIntervalTime = interval.StartTime - interval.EndTime;
@@ -203,6 +247,7 @@
 
 
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script type="text/javascript">
 

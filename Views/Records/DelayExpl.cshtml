@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewData["Title"] = "Adicionar explicação.";
+}
+
+<div class="row">
+    <div>
+        <a class="icone pt-3 pl-3" title="Voltar" asp-action="Index">
+            <i class="fa fa-2x fa-arrow-circle-left"></i>
+        </a>
+    </div>
+    <div class="col-md-4 offset-md-4 p-2">
+        <h2 class="text-center">@ViewData["Title"]</h2>
+        <hr />
+        <h3 class="pt-2">Por favor, adiciona a explicação por @ViewData["Data"]</h3>
+        <form asp-action="DelayExpl" method="post">
+            @if (Html.ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <div class="form-group">
+                <label class="control-label">Explicação</label>
+                <input type="text" id="ExplText" name="ExplText" value="@ViewData["ExplText"]" class="form-control" />
+            </div>
+            <input type="hidden" id="Data" name="Data" value="@ViewData["Data"]" />
+            <input type="hidden" id="StartDayDelayFlag" name="StartDayDelayFlag" value="@ViewData["StartDayDelayFlag"]" />
+            <input type="hidden" id="EndDayDelayFlag" name="EndDayDelayFlag" value="@ViewData["EndDayDelayFlag"]" />
+
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+

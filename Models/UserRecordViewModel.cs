@@ -17,13 +17,26 @@ namespace Attendance_Performance_Control.Models
         //One date record
         public DateTime Data { get; set; }
 
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:t}")]
         [Display(Name = "Início")]
         public DateTime DayStartTime { get; set; }
 
+        [Display(Name = "Explicação do atraso")]
+        public string StartDayDelayExplanation { get; set; }
+
+        public bool StartDayDelayFlag { get; set; }
+
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:t}")]
         [Display(Name = "Fim")]
         public DateTime? DayEndTime { get; set; }
+
+        [Display(Name = "Explicação do atraso")]
+        public string EndDayDelayExplanation { get; set; }
+
+        public bool EndDayDelayFlag { get; set; }
         public List<IntervalRecord> IntervalsList { get; set; }
-        //public DateTime TotalHorasPorDay { get; set; }
+        
+        public string TotalHoursPorDay { get; set; }
     }
 
     

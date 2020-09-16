@@ -19,6 +19,10 @@ namespace Attendance_Performance_Control.Models
         [Required]
         public DateTime Data { get; set; }
 
+        public string StartDayDelayExplanation { get; set; }
+
+        public string EndDayDelayExplanation { get; set; }
+
         //Identity User
         [Required]
         public string UserId { get; set; }

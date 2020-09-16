@@ -18,7 +18,6 @@ namespace Attendance_Performance_Control.Models
 
         public IntervalTypes? IntervalType { get; set; }
 
-
         public int DayRecordId { get; set; }
         public virtual DayRecord DayRecord { get; set; }
     }
