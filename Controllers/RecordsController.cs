@@ -85,7 +85,7 @@ namespace Attendance_Performance_Control.Controllers
         //3. Set Interval Type
         [HttpPost]
         [ActionName("Index")]
-        public async Task<IActionResult> IndexPost(string start, string dateSortParam, string dateRangeSearch, int intervalId, IntervalTypes? IntervalType, int? page)
+        public async Task<IActionResult> IndexPost(string start, string dateSortParam, string dateRangeSearch, int? page)
         {
             List<UserRecordViewModel> listOfRecords;
             //sorting by data
@@ -107,14 +107,6 @@ namespace Attendance_Performance_Control.Controllers
             //find total seconds to show with javascript timer
             //@ 0 or NºSeconds
             @ViewBag.totalSeconds = await GetTotalSecondsOfLastTimeRecord();
-
-            //if intervalId has value, save intervalType in Interval Description
-            if (intervalId != 0 && IntervalType != null)
-            {
-                var thisInterval = _context.IntervalRecords.Where(c => c.Id == intervalId).FirstOrDefault();
-                thisInterval.IntervalType = IntervalType;
-                await _context.SaveChangesAsync();
-            }
 
             //if start is true
             if (String.Compare(start, "1") == 0)
@@ -397,7 +389,7 @@ namespace Attendance_Performance_Control.Controllers
             //get DayRecord by Data
             var thisDateRecord = _context.DayRecords.FirstOrDefault(c => c.Data.Date == Data.Date);
 
-            if(!String.IsNullOrEmpty(StartDayDelayFlag) && thisDateRecord !=null && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
+            if (!String.IsNullOrEmpty(StartDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
                 ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
             if (!String.IsNullOrEmpty(EndDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
                 ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
@@ -476,6 +468,144 @@ namespace Attendance_Performance_Control.Controllers
 
             return View();
         }
+
+
+
+        public async Task<IActionResult> IntervalTypeSet(int? id)
+        {
+            if (id == null)
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var thisInterval = await _context.IntervalRecords.FindAsync(id);
+
+            if (thisInterval == null)
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            //return values in edit mode
+            //choosed radio button
+            switch (thisInterval.IntervalType)
+            {
+                case "Almoço":
+                    ViewData["AlmocoChecked"] = "checked";
+                    break;
+                case "Café":
+                    ViewData["CafeChecked"] = "checked";
+                    break;
+                case "Hospital":
+                    ViewData["HospitalChecked"] = "checked";
+                    break;
+                case "Outro":
+                    ViewData["OutroChecked"] = "checked";
+                    break;
+            }
+
+            if (String.Compare(thisInterval.IntervalType, "Outro") == 0)
+                ViewData["intervalType"] = thisInterval.IntervalType;
+
+            ViewData["InervalDate"] = _context.DayRecords.FirstOrDefault(c => c.Id == thisInterval.DayRecordId).Data.ToShortDateString();
+
+            return View(thisInterval);
+        }
+
+
+        [HttpPost]
+        [ActionName("IntervalTypeSet")]
+        public async Task<IActionResult> IntervalTypeSetPost(int? id, string intervalType, string intervalTypeCustom)
+        {
+            if (id == null)
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var thisInterval = await _context.IntervalRecords.FindAsync(id);
+
+            if (thisInterval == null)
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (String.IsNullOrWhiteSpace(intervalType))
+            {
+                ModelState.AddModelError(String.Empty, "Por favor, adiciona o tipo de Intervalo.");
+            }
+            else if (String.Compare(intervalType, "Outro") == 0 && String.IsNullOrWhiteSpace(intervalTypeCustom))
+            {
+                ModelState.AddModelError(String.Empty, "Se escolheu outro tipo de Intervalo, por favor adiciona a descrição.");
+            }
+            else if (String.Compare(intervalType, "Outro") == 0 && String.IsNullOrWhiteSpace(intervalTypeCustom) && intervalTypeCustom.Length > 50)
+            {
+                ModelState.AddModelError(String.Empty, "O tipo de Intervalo tem de conter máximo 50 caracteres.");
+            }
+            else
+            {
+                try
+                {
+                    if (String.Compare(intervalType, "Outro") == 0)
+                        thisInterval.IntervalType = intervalTypeCustom;
+                    else
+                        thisInterval.IntervalType = intervalType;
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "O tipo de Intervalo foi guardado com sucesso.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception)
+                {
+                    TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                }
+            }
+
+            //return values in edit mode
+            //choosed radio button
+            switch (thisInterval.IntervalType)
+            {
+                case "Almoço":
+                    ViewData["AlmocoChecked"] = "checked";
+                    break;
+                case "Café":
+                    ViewData["CafeChecked"] = "checked";
+                    break;
+                case "Hospital":
+                    ViewData["HospitalChecked"] = "checked";
+                    break;
+                case "Outro":
+                    ViewData["OutroChecked"] = "checked";
+                    break;
+            }
+
+            if (String.Compare(thisInterval.IntervalType, "Outro") == 0)
+                ViewData["intervalType"] = thisInterval.IntervalType;
+
+            ViewData["InervalDate"] = _context.DayRecords.FirstOrDefault(c => c.Id == thisInterval.DayRecordId).Data.ToShortDateString();
+
+            return View(thisInterval);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

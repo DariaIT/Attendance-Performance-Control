@@ -1,0 +1,57 @@
+﻿@model IntervalRecord
+
+@{
+    ViewData["Title"] = "Adicionar o tipo de Intervalo.";
+}
+
+<div class="row">
+    <div>
+        <a class="icone pt-3 pl-3" title="Voltar" asp-action="Index">
+            <i class="fa fa-2x fa-arrow-circle-left"></i>
+        </a>
+    </div>
+    <div class="col-md-4 offset-md-4 p-2">
+        <h2 class="text-center">@ViewData["Title"]</h2>
+        <hr />
+        <h3 class="pt-2 text-center">Por favor, expecifica o tipo de Intervalo para @ViewData["InervalDate"]</h3>
+        <form asp-action="IntervalTypeSet" method="post">
+            @if (Html.ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <div class="form-check pb-2">
+                <input type="radio" id="intervalType1" name="intervalType" value="Almoço" checked="@ViewData["AlmocoChecked"]" class="form-check-input" />
+                <label for="intervalType1" class="form-check-label"> Almoço </label>
+            </div>
+            <div class="form-check pb-2">
+                <input type="radio" id="intervalType2" name="intervalType" value="Café" checked="@ViewData["CafeChecked"]" class="form-check-input" />
+                <label for="intervalType2" class="form-check-label"> Café </label>
+            </div>
+            <div class="form-check pb-3">
+                <input type="radio" id="intervalType3" name="intervalType" value="Hospital" checked="@ViewData["HospitalChecked"]" class="form-check-input" />
+                <label for="intervalType3" class="form-check-label"> Hospital </label>
+            </div>
+            <div class="form-check pb-1">
+                <input type="radio" id="intervalType4" name="intervalType" value="Outro" checked="@ViewData["OutroChecked"]" class="form-check-input" />
+                <label for="intervalType4" class="form-check-label"> Outro </label>
+            </div>
+            <div class="form-group">
+                <label for="intervalType5" class="control-label"> Se escolheu "Outro" descreve em baixo: </label>
+                <input type="text" id="intervalType5" name="intervalTypeCustom" class="form-control" value="@ViewData["intervalType"]" />
+            </div>
+            <input type="hidden" id="@Model.Id" name="id" value="@Model.Id" />
+
+
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+

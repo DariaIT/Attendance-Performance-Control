@@ -36,13 +36,13 @@ namespace Attendance_Performance_Control.Helpers
         }
 
         //Helper to display Enum Data Annotation in View
-        public static string GetDisplayName(this Enum enumValue)
-        {
-            return enumValue.GetType()?
- .GetMember(enumValue.ToString())?[0]?
- .GetCustomAttribute<DisplayAttribute>()?
- .Name;
-        }
+ //       public static string GetDisplayName(this Enum enumValue)
+ //       {
+ //           return enumValue.GetType()?
+ //.GetMember(enumValue.ToString())?[0]?
+ //.GetCustomAttribute<DisplayAttribute>()?
+ //.Name;
+ //       }
 
     }
 }
