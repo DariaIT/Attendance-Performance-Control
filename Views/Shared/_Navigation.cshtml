@@ -26,16 +26,16 @@
             }
             <!--End show just for Admin-->
 
-            @*<li class="@Html.IsSelected(controller: "Records", action: "Index")">
-                <a href="@Url.Action("Index", "Records")"><i class="fa fa-book-open"></i> <span class="nav-label">Livro de Ponto</span></a>
-            </li>*@
 
             <li class="@Html.IsSelected(controller: "Records", action: "Index") @Html.IsSelected(controller: "Reports", action: "Index")">
                 <a href="#"><i class="fa fa-book-open"></i> <span class="nav-label">Livro de Ponto</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level @Html.IsSelected(action: "Index", controller: "Records", cssClass: "collapse in") @Html.IsSelected(action: "Index", controller: "Reports", cssClass: "collapse in")">
-                    <li class="@Html.IsSelected(action: "Index", controller: "Records")"><a href="@Url.Action("Index", "Records")">Registos</a></li>
-                    <li class="@Html.IsSelected(action: "Index", controller: "Reports")"><a href="@Url.Action("Index", "Reports")">Relatorios</a></li>
-                </ul>
+                    @if (!@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)
+                    {
+                        <li class="@Html.IsSelected(action: "Index", controller: "Records")"><a href="@Url.Action("Index", "Records")">Registos</a></li>
+                    }
+                        <li class="@Html.IsSelected(action: "Index", controller: "Reports")"><a href="@Url.Action("Index", "Reports")">Relatorios</a></li>
+                    </ul>
             </li>
 
         </ul>

@@ -17,17 +17,12 @@ using System.Runtime.InteropServices;
 
 namespace Attendance_Performance_Control.Controllers
 {
-    public class RecordsController : Controller
+    public class RecordsController : BaseController
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public RecordsController(
+        public RecordsController (
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager) : base(context, userManager)
         {
-            _context = context;
-            _userManager = userManager;
         }
 
 
@@ -137,14 +132,7 @@ namespace Attendance_Performance_Control.Controllers
             return View(onePageOfrecords);
         }
 
-
-        private string GetDefaultRangeDataPicker()
-        {
-            DateTime date = DateTime.Now;
-            var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
-            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            return String.Concat(firstDayOfMonth.ToShortDateString(), " - ", lastDayOfMonth.ToShortDateString());
-        }
+    
 
         private async Task<double> GetTotalSecondsOfLastTimeRecord()
         {
@@ -204,22 +192,14 @@ namespace Attendance_Performance_Control.Controllers
                     EndDayDelayExplanation = record.EndDayDelayExplanation
                 };
 
-                //get sum of all intervals
-                TimeSpan intervalSum = new TimeSpan();
-
-                foreach (var interval in userRecord.IntervalsList)
-                {
-                    intervalSum += interval.EndTime - interval.StartTime;
-                }
-
                 //if do not exist yet DayEndTime - do not show in table
                 if (userRecord.DayEndTime != null)
                 {
                     //Add TotalHoursPorDay
-                    var TotalHoursPorDay = userRecord.DayEndTime - userRecord.DayStartTime - intervalSum;
-                    userRecord.TotalHoursPorDay = TotalHoursPorDay.Value.ToString("hh\\:mm\\:ss");
+                    var TotalHoursPorDay = (TimeSpan) GetTotalWorkHoursPorDay(record.Id);
+                    userRecord.TotalHoursPorDay = TotalHoursPorDay.ToString("hh\\:mm\\:ss");
+                    
                     //Add Delay flags values
-
                     //if Today
                     if (userRecord.Data.Date == DateTime.Now.Date)
                     {
@@ -240,45 +220,7 @@ namespace Attendance_Performance_Control.Controllers
             //return list of UserRecordViewModel
             return listOfUserRecordViewModel;
         }
-
-        private async Task<List<IntervalRecord>> GetIntervalsList(int dayRecordId)
-        {
-            //Get All Intervals in db with specific RecordId
-            var listOfIntervals = await _context.IntervalRecords.Where(c => c.DayRecordId == dayRecordId).ToListAsync();
-
-            return listOfIntervals;
-        }
-
-        private async Task<DateTime> GetDateStartTime(int dayRecordId)
-        {
-            //Get All TimeRecords in db with specific RecordId
-            var listOfTimeRecords = await _context.TimeRecords.Where(c => c.DayRecordId == dayRecordId).OrderBy(c => c.StartTime).ToListAsync();
-            var dateStartTime = listOfTimeRecords.First().StartTime;
-
-            return dateStartTime;
-        }
-
-        private async Task<DateTime?> GetDateEndTime(int dayRecordId)
-        {
-            DateTime? dateEndTime = null;
-
-            //Get All TimeRecords in db with specific DayRecordId
-            var listOfTimeRecords = await _context.TimeRecords.Where(c => c.DayRecordId == dayRecordId).OrderBy(c => c.StartTime).ToListAsync();
-
-            //if it is more then one TimeRecords and the last TimeRecord is still running (EndTime is null)
-            //return EndTime of penultimate TimeRecord
-            if (listOfTimeRecords.Count > 1 && listOfTimeRecords.Last().EndTime == null)
-            {
-                dateEndTime = listOfTimeRecords.Last().StartTime;
-            }
-            //if EndTime of last TimeRecord not null - all TimeRecords closed - return EndTime
-            else if (listOfTimeRecords.Last().EndTime != null)
-            {
-                dateEndTime = listOfTimeRecords.Last().EndTime;
-            }
-
-            return dateEndTime;
-        }
+   
 
         //function that take action after Start Button Click
         [HttpPost]

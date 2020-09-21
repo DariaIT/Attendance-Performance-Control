@@ -71,3 +71,7 @@
     color: #ed5565;
     padding-left: 2px;
 }
+
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td.dtr-control::before {
+    background-color: #1ab394 !important;
+}

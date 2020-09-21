@@ -112,6 +112,23 @@
                     "infoFiltered": "(filtrado de _MAX_ regitros totais)"
                 }
             });
+
+            $('#ReportsTable').DataTable({
+
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ Registros por página",
+                    "search": "Procurar",
+                    "paginate": { "previous": "Anterior", "next": "Próximo" },
+                    "zeroRecords": "Nada foi encontrado",
+                    "info": "Página _PAGE_ de _PAGES_",
+                    "infoEmpty": "Sem registros",
+                    "infoFiltered": "(filtrado de _MAX_ regitros totais)"
+                },
+                "columnDefs": [{
+                    "targets": 9,
+                    "orderable": false
+                }]
+            });
         });
         
         

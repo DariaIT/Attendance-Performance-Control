@@ -1,5 +1,230 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<ReportsViewModel>
 @{
+    ViewData["Title"] = "Relatório";
+}
+
+<!--Show errors on fail or success-->
+@{
+    if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Success"]
+        </div>
+    }
+    if (TempData["Failure"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Failure"]
+        </div>
+    }
+}
+<!--End Show errors on fail or success-->
+
+
+
+<div class="row pt-5 pb-3 pr-2 pl-2 animate__animated animate__fadeIn">
+    <div class="col-6 col-md-3">
+        <!--Filter by Date - submit by jquery function-->
+        <form id="dateRangePicker" asp-action="Index" method="get">
+            <div class="form-group d-inline-flex flex-nowrap">
+                <input id="bootstrap_daterange_calendar" type="text" name="dateRangeSearch" class="form-control" value="@ViewData["dateRangeSearch"]" />
+                <label for="bootstrap_daterange_calendar">
+                    <i class="fa fa-calendar-alt fa-2x pl-1 pt-1 icone"></i>
+                </label>
+                <input type="hidden" name="searchByUser" value="@Context.Request.Query["searchByUser"]" />
+            </div>
+        </form>
+        <!--End Filter by Date-->
+    </div>
+    <!--Filter by User Id-Name - submit by jquery function-->
+    <div class="col-6 col-md-3">
+        <form id="filterByUserId" method="get" asp-action="Index">
+            <div class="form-group d-inline-flex flex-nowrap">
+                <select id="searchByUser" name="searchByUser" value="@ViewData["searchByUser"]" class="form-control" asp-items="@ViewData["Users"] as SelectList">
+                    <option value="@String.Empty">Todos</option>
+                </select>
+                <label for="searchByUser">
+                    <i class="fa fa-user fa-2x pl-1 pt-1 icone"></i>
+                </label>
+                <input type="hidden" name="dateRangeSearch" value="@Context.Request.Query["dateRangeSearch"]" />
+            </div>
+        </form>
+    </div>
+    <!--End Filter by User Id-Name-->
+</div>
+
+<table id="ReportsTable" class="table table-striped table-bordered dt-responsive table-hover animate__animated animate__fadeIn" width="100%" cellspacing="0">
+    <thead class="thead-light">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Data)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserDepartment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserOccupation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DayStartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDayDelayExplanation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DayEndTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDayDelayExplanation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalHoursForIntervals)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalHoursForWork)
+            </th>
+            <th>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Data)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserDepartment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserOccupation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DayStartTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDayDelayExplanation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DayEndTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDayDelayExplanation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalHoursForIntervals)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalHoursForWork)
+                </td>
+                <td>
+                    <a class="btn p-0" title="Ver Detalhes" asp-controller="Reports" asp-action="Details" asp-route-Id="@item.DayRecordsId">
+                        <i style="font-size:16px" class="fa fa-info-circle icone"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //Initialize portuguese date translation
+            moment.locale('pt');
+
+            //bootstrap-daterange picker
+            $('input[name="dateRangeSearch"]').daterangepicker({
+                autoApply: true,
+                showCustomRangeLabel: false,
+                "alwaysShowCalendars": true,
+                //"startDate": moment().startOf('month'),
+                //"endDate": moment().endOf('month'),
+                "ranges": {
+                    'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Esta semana': [moment().startOf('week'), moment().endOf('week')],
+                    'Semana passada': [moment().startOf('week').subtract(1, 'week'), moment().endOf('week').subtract(1, 'week')],
+                    'Este mês': [moment().startOf('month'), moment().endOf('month')],
+                    'Mês passado': [moment().startOf('month').subtract(1, 'month'), moment().endOf('month').subtract(1, 'month')],
+                    'Este ano': [moment().startOf('year'), moment().endOf('year')],
+                    'Ano passado': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')]
+                },
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "daysOfWeek": [
+                        "Dom",
+                        "Seg",
+                        "Ter",
+                        "Qua",
+                        "Qui",
+                        "Sex",
+                        "Sáb"
+                    ],
+                    "monthNames": [
+                        "Janeiro",
+                        "Fevereiro",
+                        "Março",
+                        "Abril",
+                        "Posso",
+                        "Junho",
+                        "Julho",
+                        "Agosto",
+                        "Setembro",
+                        "Outubro",
+                        "Novembro",
+                        "Dezembro"
+                    ],
+                    "firstDay": 1
+                },
+            }, function (start, end, label) {
+
+            });
+
+            //this function is called every time client choose new date period
+            //automatic form get submit to Index Controller, date is passed via ViewData["dateRangeSearch"]
+            $('input[name="dateRangeSearch"]').on('apply.daterangepicker', function (ev, picker) {
+                $("#dateRangePicker").submit();
+            });
+
+            //submit filter by user id-name form
+            $('#filterByUserId').change(function () {
+                $('form').submit();
+            });
+
+
+        });
+
+        //function to get values from Url by parameter name (var tech = getUrlParameter('technology');)
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+                //string array with parameters splited by &
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                //get parameter value
+                sParameterName = sURLVariables[i].split('=');
+
+                //if our parameter exist but undefined - return false, otherwise decode e return string value
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? false : decodeURIComponent(sParameterName[1]);
+                }
+            }
+            //return null if parameter not in URL
+            return null;
+        };
+
+    </script>
 }
