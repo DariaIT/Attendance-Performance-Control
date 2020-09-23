@@ -21,15 +21,52 @@ namespace Attendance_Performance_Control.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string dateRangeSearch, string searchByUser)
+        public async Task<IActionResult> Index()
         {
-            //set datarange picker to null value
-            //by default insteed of null return: 21/09/2020-21/09/2020 with DateTime.Now
-            if (String.Compare(dateRangeSearch, String.Concat(DateTime.Now.ToShortDateString()," ", "-", " ", DateTime.Now.ToShortDateString())) == 0)
-                dateRangeSearch = "";
+            //GetDefaultRangeDataPicker() - get default date for datarangepicker - "This Month" - ex. "01/09/2020 - 30/09/2020"
+            //Initialize DataRangePicker: initial default value = "This Month"
+            var dateRangeSearch = GetDefaultRangeDataPicker();
+            ViewData["dateRangeSearch"] = dateRangeSearch;
 
-            List<ReportsViewModel> listOfRecords = new List<ReportsViewModel>();
+            //find startDate and EndDate from dateRangeSearch string
+            var thisStringArray = dateRangeSearch.Split(" ");
+            var startDate = DateTime.Parse(thisStringArray[0]);
+            var endDate = DateTime.Parse(thisStringArray[2]);
 
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var IsAdmin = _userManager.IsInRoleAsync(user, "Admin").Result;
+
+            ViewData["IsAdmin"] = IsAdmin;
+            //if Admin => return all records of all users
+            if (IsAdmin)
+                user = null;
+            //else, if User => return records of current user
+
+            //return list of records of given user
+            //return list of records in dateRangeSearch period: default "This Month"
+            //if user=null, return all records of all users (Admin View)
+            var listOfRecords = await CreateReportsViewModel(startDate, endDate, user, null);
+
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "FullName");
+            ViewData["searchByUser"] = null;
+
+            //Departments list
+            ViewData["Departments"] = new SelectList(_context.Departments, "Id", "DepartmentName");
+            ViewData["searchByDept"] = null;
+
+            return View(listOfRecords);
+        }
+
+        [HttpPost]
+        [ActionName("Index")]
+        public async Task<IActionResult> IndexPost(string dateRangeSearch, string searchByUser, int? searchByDept)
+        {
             //GetDefaultRangeDataPicker() - get default date for datarangepicker - "This Month" - ex. "01/09/2020 - 30/09/2020"
             //Initialize DataRangePicker: initial default value = "This Month" or date period chosen by client
             dateRangeSearch = String.IsNullOrEmpty(dateRangeSearch) ? GetDefaultRangeDataPicker() : dateRangeSearch;
@@ -47,27 +84,57 @@ namespace Attendance_Performance_Control.Controllers
                 return NotFound();
             }
 
+            var IsAdmin = _userManager.IsInRoleAsync(user, "Admin").Result;
+
+            ViewData["IsAdmin"] = IsAdmin;
+
             //if Admin and search by user is empty => return all records of all users
-            if (_userManager.IsInRoleAsync(user, "Admin").Result && String.IsNullOrEmpty(searchByUser))
+            if (IsAdmin && String.IsNullOrEmpty(searchByUser))
                 user = null;
             //if Admin and search user has value => return search user records
-            else if (_userManager.IsInRoleAsync(user, "Admin").Result && !String.IsNullOrEmpty(searchByUser))
+            else if (IsAdmin && !String.IsNullOrEmpty(searchByUser))
                 user = await _userManager.FindByIdAsync(searchByUser);
             //else, if User => return records of current user
 
             //return list of records of given user
             //return list of records in dateRangeSearch period: default "This Month" or defined by client
             //if user=null, return all records of all users (Admin View)
-            listOfRecords = await CreateReportsViewModel(startDate, endDate, user);
+            var listOfRecords = await CreateReportsViewModel(startDate, endDate, user, searchByDept);
 
-            ViewData["Users"] = new SelectList(_context.Users, "Id", "FullName", searchByUser);
-            ViewData["searchByUser"] = searchByUser;
+            //if searchByDept is not null, set user search to null value, because it is concurent searching
+            if (searchByDept != null && searchByUser != null)
+            {
+                if (UserPertenceToDepartment(searchByUser, (int)searchByDept))
+                {
+                    ViewData["Users"] = new SelectList(ListOfAllUsersByDepartment((int)searchByDept), "Id", "FullName", searchByUser);
+                    ViewData["searchByUser"] = searchByUser;
+                }
+                //user do not pertence to department
+                else
+                {
+                    ViewData["Users"] = new SelectList(ListOfAllUsersByDepartment((int)searchByDept), "Id", "FullName");
+                    ViewData["searchByUser"] = null;
+                }
+            }
+            else if (searchByDept != null && searchByUser == null)
+            {
+                ViewData["Users"] = new SelectList(ListOfAllUsersByDepartment((int)searchByDept), "Id", "FullName");
+                ViewData["searchByUser"] = null;
+            }
+            else
+            { 
+                ViewData["Users"] = new SelectList(_context.Users, "Id", "FullName", searchByUser);
+                ViewData["searchByUser"] = searchByUser;
+            }
+
+            ViewData["Departments"] = new SelectList(_context.Departments, "Id", "DepartmentName", searchByDept);
+            ViewData["searchByDept"] = searchByDept;
 
             return View(listOfRecords);
         }
 
 
-        public async Task<List<ReportsViewModel>> CreateReportsViewModel(DateTime startDate, DateTime endDate, ApplicationUser user)
+        public async Task<List<ReportsViewModel>> CreateReportsViewModel(DateTime startDate, DateTime endDate, ApplicationUser user, int? searchByDept)
         {
 
             //Initialize
@@ -76,11 +143,36 @@ namespace Attendance_Performance_Control.Controllers
 
             //Get All Records of given user in period "startDate to endDate"
             //if user=null, get all records (Admin View)
-            if (user==null)
-               recordsListOfCurrentUser = await _context.DayRecords.Where(c => c.Data.Date >= startDate && c.Data.Date <= endDate).ToListAsync();
+            //if searchByDept != null, get all users of this department
+            if (searchByDept != null)
+            {
+                //if searchbyUser not null and user pertence to department
+                if (user != null && UserPertenceToDepartment(user.Id, (int)searchByDept))
+                {
+                    recordsListOfCurrentUser =
+                   await _context.DayRecords.Where(c => c.UserId == user.Id && c.Data.Date >= startDate && c.Data.Date <= endDate).ToListAsync();
+                }
+                else
+                {
+                    //user is null or do not pertence to Department
+                    //ger all Records of users that pertence to this Department
+                    foreach (var us in _context.Users)
+                    {
+                        if (UserPertenceToDepartment(us.Id, (int)searchByDept))
+                        {
+                            var tempRecordsList = _context.DayRecords.Where(c => c.User.Id == us.Id && c.Data.Date >= startDate && c.Data.Date <= endDate).ToList();
+                            recordsListOfCurrentUser.AddRange(tempRecordsList);
+                        }
+                    }
+                }
+            }
+            //return all Records by Date
+            else if (user == null && searchByDept == null)
+                recordsListOfCurrentUser = await _context.DayRecords.Where(c => c.Data.Date >= startDate && c.Data.Date <= endDate).ToListAsync();
+            //return all records of current user (not Admin View)
             else
-             recordsListOfCurrentUser =
-                await _context.DayRecords.Where(c => c.UserId == user.Id && c.Data.Date >= startDate && c.Data.Date <= endDate).ToListAsync();
+                recordsListOfCurrentUser =
+                   await _context.DayRecords.Where(c => c.UserId == user.Id && c.Data.Date >= startDate && c.Data.Date <= endDate).ToListAsync();
 
             //create list of ReportsViewModel
             foreach (var record in recordsListOfCurrentUser)
@@ -99,7 +191,7 @@ namespace Attendance_Performance_Control.Controllers
                     StartDayDelayExplanation = record.StartDayDelayExplanation,
                     DayEndTime = (DateTime)await GetDateEndTime(record.Id),
                     EndDayDelayExplanation = record.EndDayDelayExplanation,
-                    TotalHoursForWork =((TimeSpan) GetTotalWorkHoursPorDay(record.Id)).ToString("hh\\:mm\\:ss"),
+                    TotalHoursForWork = ((TimeSpan)GetTotalWorkHoursPorDay(record.Id)).ToString("hh\\:mm\\:ss"),
                     TotalHoursForIntervals = GetTotalIntervalHoursPorDay(record.Id).ToString("hh\\:mm\\:ss")
                 };
 
@@ -115,4 +207,5 @@ namespace Attendance_Performance_Control.Controllers
             return listOfReportsViewModel;
         }
     }
+
 }

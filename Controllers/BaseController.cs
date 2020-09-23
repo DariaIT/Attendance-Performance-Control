@@ -96,5 +96,48 @@ namespace Attendance_Performance_Control.Controllers
 
             return dayEndTime.HasValue ? dayEndTime - dayStartTime - intervalsSum : null;
         }
+
+        public bool UserPertenceToDepartment (string userId, int departId)
+        {
+            bool pertenceToDept = false;
+
+            var user = _userManager.FindByIdAsync(userId).Result;
+
+            //get all occupations of this Department
+            var occupationListByDept = _context.Occupations.Where(c => c.DepartmentId == departId).ToList();
+
+            //ger all Records of users that pertence to this list of occupations that pertence to this Department
+            foreach (var occupation in occupationListByDept)
+            {
+                    if (user.OccupationId == occupation.Id)
+                    {
+                    pertenceToDept = true;
+                    break;
+                    }
+            }
+
+            return pertenceToDept;
+        }
+
+        public List<ApplicationUser> ListOfAllUsersByDepartment(int departId)
+        {
+            List<ApplicationUser> usersList = new List<ApplicationUser>();
+            //get all occupations of this Department
+            var occupationListByDept = _context.Occupations.Where(c => c.DepartmentId == departId).ToList();
+
+            //ger all Records of users that pertence to this list of occupations that pertence to this Department
+            foreach (var occupation in occupationListByDept)
+            {
+                foreach (var user in _context.Users)
+                {
+                    if (user.OccupationId == occupation.Id)
+                    {
+                        usersList.Add(user);
+                    }
+                }
+            }
+
+            return usersList;
+        }
     }
 }

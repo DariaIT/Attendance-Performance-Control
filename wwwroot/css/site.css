@@ -38,9 +38,6 @@
     font-weight:600;
 }
 
-#bootstrap_daterange_calendar {
-    max-width: 300px;
-}
 
 /*@media (max-width: 590px) {
     #bootstrap_daterange_calendar {
@@ -75,3 +72,4 @@
 table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td.dtr-control::before {
     background-color: #1ab394 !important;
 }
+
