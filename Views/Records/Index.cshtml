@@ -122,7 +122,7 @@
                         @{if (item.StartDayDelayFlag)
                             {
                                 @item.StartDayDelayExplanation
-                                <a class="btn p-0" title="Adicionar Explicação" asp-controller="Records" asp-action="DelayExpl" asp-route-data="@item.Data.ToShortDateString()" asp-route-StartDayDelayFlag="@item.StartDayDelayFlag" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-page="@Context.Request.Query["page"]">
+                                <a class="btn p-0" title="Adicionar Explicação" asp-controller="Records" asp-action="DelayExpl" asp-route-data="@item.Data.ToShortDateString()" asp-route-StartDayDelayFlag="@item.StartDayDelayFlag">
                                     <i style="font-size:16px" class="fa fa-edit icone"></i>
                                 </a>
                             }
@@ -138,7 +138,7 @@
                         @{if (item.EndDayDelayFlag)
                             {
                                 @item.EndDayDelayExplanation
-                                <a class="btn p-0" title="Adicionar Explicação" asp-controller="Records" asp-action="DelayExpl" asp-route-data="@item.Data.ToShortDateString()" asp-route-EndDayDelayFlag="@item.EndDayDelayFlag" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-page="@Context.Request.Query["page"]">
+                                <a class="btn p-0" title="Adicionar Explicação" asp-controller="Records" asp-action="DelayExpl" asp-route-data="@item.Data.ToShortDateString()" asp-route-EndDayDelayFlag="@item.EndDayDelayFlag">
                                     <i style="font-size:16px" class="fa fa-edit icone"></i>
                                 </a>
                             }
@@ -162,7 +162,7 @@
                             <td></td>
                             <td>
                                 @interval.IntervalType
-                                <a class="btn p-0" title="Adicionar Tipo de Intervalo" asp-controller="Records" asp-action="IntervalTypeSet" asp-route-id="@interval.Id" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-page="@Context.Request.Query["page"]">
+                                <a class="btn p-0" title="Adicionar Tipo de Intervalo" asp-controller="Records" asp-action="IntervalTypeSet" asp-route-id="@interval.Id">
                                     <i style="font-size:16px" class="fa fa-edit icone"></i>
                                 </a>
                             </td>

@@ -85,7 +85,7 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            var occupationsList = await _context.Occupations.Where(c => c.Id != 6).OrderBy(c=>c.OccupationName).ToListAsync();
+            var occupationsList = await _context.Occupations.Where(c => c.Id != 8).OrderBy(c=>c.OccupationName).ToListAsync();
             ViewData["Occupations"] = new SelectList(occupationsList, "Id", "OccupationName");
         }
 

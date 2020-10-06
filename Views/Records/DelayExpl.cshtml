@@ -5,7 +5,7 @@
 
 <div class="row">
     <div>
-        <a class="icone pt-3 pl-3" title="Voltar" asp-action="Index" >
+        <a class="icone pt-3 pl-3" title="Voltar" asp-action="Index">
             <i class="fa fa-2x fa-arrow-circle-left"></i>
         </a>
     </div>
@@ -14,10 +14,6 @@
         <hr />
         <h3 class="pt-2">Por favor, adiciona a explicação por @ViewData["Data"]</h3>
         <form asp-action="DelayExpl" method="post">
-
-            <input type="hidden" name="dateRangeSearch" value="@ViewData["dateRangeSearch"]" />
-            <input type="hidden" name="page" value="@ViewData["page"]" />
-
             @if (Html.ViewData.ModelState.ErrorCount > 0)
             {
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">

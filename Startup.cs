@@ -41,9 +41,6 @@ namespace Attendance_Performance_Control
             _adminEmail = Configuration["Attendence-Control:AdminEmail"];
             _adminPass = Configuration["Attendence-Control:AdminPass"];
 
-            //_adminEmail = "Previa2020!";
-            //_adminPass = "a.marum@previa.pt";
-
             // Add default portuguese culture
             services.Configure<RequestLocalizationOptions>(options =>
             {
@@ -191,14 +188,6 @@ namespace Attendance_Performance_Control
                 endpoints.MapRazorPages();
             });
 
-
-            // migrate any database changes on startup (includes initial db creation)
-            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            //{
-            //    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
-            //    context.Database.Migrate();
-            //}
-
             // Function that create user and add it to Admin Role
             CreateRoles(serviceProvider);
         }
@@ -227,7 +216,7 @@ namespace Attendance_Performance_Control
                     FirstName = "Ângelo",
                     LastName = "Marum",
                     Email = email,
-                    OccupationId = 6, // Occupation-Cargo - Diretor Geral (Hidden for other users)
+                    OccupationId = 8, // Occupation-Cargo - Diretor Geral (Hidden for other users)
                     UserName = email,
                     EmailConfirmed = true
                 };

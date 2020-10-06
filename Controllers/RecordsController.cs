@@ -19,7 +19,7 @@ namespace Attendance_Performance_Control.Controllers
 {
     public class RecordsController : BaseController
     {
-        public RecordsController(
+        public RecordsController (
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager) : base(context, userManager)
         {
@@ -67,7 +67,7 @@ namespace Attendance_Performance_Control.Controllers
             @ViewBag.totalSeconds = await GetTotalSecondsOfLastTimeRecord();
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
-            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 10);
+            var onePageOfrecords = listOfRecords.ToPagedList(pageNumber, 10); // will only contain 25 products max because of the pageSize
 
             return View(onePageOfrecords);
 
@@ -132,7 +132,7 @@ namespace Attendance_Performance_Control.Controllers
             return View(onePageOfrecords);
         }
 
-
+    
 
         private async Task<double> GetTotalSecondsOfLastTimeRecord()
         {
@@ -181,18 +181,6 @@ namespace Attendance_Performance_Control.Controllers
             //create list of UserRecordViewModel
             foreach (var record in recordsListOfCurrentUser)
             {
-                //if User forget to stop timer and db.TimeRecords EndTime is NULL
-                //Date < Today
-                //Normalize Record: set start and end day = user StartWorkTime and EndWorkTime and StartLunchTime and EndLunchTime
-
-                if (record.Data.Date < DateTime.Now.Date)
-                {
-                    //check if exist TimeRecord with EndTime = null
-                    var IsOneRecordNotClosed = CheckIfOneRecordNotClosed(record.Id);
-                    if(IsOneRecordNotClosed)
-                        SetNormalizeTimetableInTimerLost(record);
-                }
-
                 //create and initialize UserRecordViewModel
                 var userRecord = new UserRecordViewModel()
                 {
@@ -208,9 +196,9 @@ namespace Attendance_Performance_Control.Controllers
                 if (userRecord.DayEndTime != null)
                 {
                     //Add TotalHoursPorDay
-                    var TotalHoursPorDay = (TimeSpan)GetTotalWorkHoursPorDay(record.Id);
+                    var TotalHoursPorDay = (TimeSpan) GetTotalWorkHoursPorDay(record.Id);
                     userRecord.TotalHoursPorDay = TotalHoursPorDay.ToString("hh\\:mm\\:ss");
-
+                    
                     //Add Delay flags values
                     //if Today
                     if (userRecord.Data.Date == DateTime.Now.Date)
@@ -232,7 +220,7 @@ namespace Attendance_Performance_Control.Controllers
             //return list of UserRecordViewModel
             return listOfUserRecordViewModel;
         }
-
+   
 
         //function that take action after Start Button Click
         [HttpPost]
@@ -331,16 +319,12 @@ namespace Attendance_Performance_Control.Controllers
         }
 
 
-        public IActionResult DelayExpl(string data, string StartDayDelayFlag, string EndDayDelayFlag, string dateRangeSearch, int? page)
+        public IActionResult DelayExpl(string data, string StartDayDelayFlag, string EndDayDelayFlag)
         {
-            ViewData["dateRangeSearch"] = dateRangeSearch;
-            ViewData["page"] = page;
-            string dateSortParam = null;
-
             if (String.IsNullOrEmpty(data))
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction(nameof(Index));
             }
 
             var Data = DateTime.Parse(data);
@@ -363,16 +347,12 @@ namespace Attendance_Performance_Control.Controllers
 
         [HttpPost]
         [ActionName("DelayExpl")]
-        public async Task<IActionResult> DelayExplPost(string Data, string ExplText, string StartDayDelayFlag, string EndDayDelayFlag, string dateRangeSearch, int? page)
+        public async Task<IActionResult> DelayExplPost(string Data, string ExplText, string StartDayDelayFlag, string EndDayDelayFlag)
         {
-            ViewData["dateRangeSearch"] = dateRangeSearch;
-            ViewData["page"] = page;
-            string dateSortParam = null;
-
             if (String.IsNullOrEmpty(Data))
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction(nameof(Index));
             }
 
             var data = DateTime.Parse(Data);
@@ -399,7 +379,7 @@ namespace Attendance_Performance_Control.Controllers
 
                         TempData["Success"] = "A explicação foi guardado com sucesso.";
 
-                        return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                        return RedirectToAction(nameof(Index));
                     }
                     //it is a evening delay
                     else if (!String.IsNullOrEmpty(EndDayDelayFlag) && Convert.ToBoolean(EndDayDelayFlag))
@@ -409,7 +389,7 @@ namespace Attendance_Performance_Control.Controllers
 
                         TempData["Success"] = "A explicação foi guardado com sucesso.";
 
-                        return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                        return RedirectToAction(nameof(Index));
                     }
                 }
                 catch (Exception)
@@ -433,16 +413,12 @@ namespace Attendance_Performance_Control.Controllers
 
 
 
-        public async Task<IActionResult> IntervalTypeSet(int? id, string dateRangeSearch, int? page)
+        public async Task<IActionResult> IntervalTypeSet(int? id)
         {
-            ViewData["dateRangeSearch"] = dateRangeSearch;
-            ViewData["page"] = page;
-            string dateSortParam = null;
-
             if (id == null)
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction(nameof(Index));
             }
 
             var thisInterval = await _context.IntervalRecords.FindAsync(id);
@@ -450,7 +426,7 @@ namespace Attendance_Performance_Control.Controllers
             if (thisInterval == null)
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction(nameof(Index));
             }
 
             //return values in edit mode
@@ -482,16 +458,12 @@ namespace Attendance_Performance_Control.Controllers
 
         [HttpPost]
         [ActionName("IntervalTypeSet")]
-        public async Task<IActionResult> IntervalTypeSetPost(int? id, string intervalType, string intervalTypeCustom, string dateRangeSearch, int? page)
+        public async Task<IActionResult> IntervalTypeSetPost(int? id, string intervalType, string intervalTypeCustom)
         {
-            ViewData["dateRangeSearch"] = dateRangeSearch;
-            ViewData["page"] = page;
-            string dateSortParam = null;
-
             if (id == null)
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction( "Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction(nameof(Index));
             }
 
             var thisInterval = await _context.IntervalRecords.FindAsync(id);
@@ -499,7 +471,7 @@ namespace Attendance_Performance_Control.Controllers
             if (thisInterval == null)
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction(nameof(Index));
             }
 
             if (String.IsNullOrWhiteSpace(intervalType))
@@ -526,7 +498,7 @@ namespace Attendance_Performance_Control.Controllers
 
                     TempData["Success"] = "O tipo de Intervalo foi guardado com sucesso.";
 
-                    return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (Exception)
                 {
