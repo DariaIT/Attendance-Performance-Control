@@ -15,6 +15,10 @@
         <hr />
         <h3 class="pt-2 text-center">Por favor, expecifica o tipo de Intervalo para @ViewData["InervalDate"]</h3>
         <form asp-action="IntervalTypeSet" method="post">
+
+            <input type="hidden" name="dateRangeSearch" value="@ViewData["dateRangeSearch"]" />
+            <input type="hidden" name="page" value="@ViewData["page"]" />
+
             @if (Html.ViewData.ModelState.ErrorCount > 0)
             {
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
