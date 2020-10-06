@@ -7,6 +7,7 @@ using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Attendance_Performance_Control.Controllers
 {
@@ -87,6 +88,76 @@ namespace Attendance_Performance_Control.Controllers
             return dateEndTime;
         }
 
+        public bool CheckIfOneRecordNotClosed(int dayRecordId)
+        {
+            bool IsOneRecordNotClosed = false;
+
+            //Get All TimeRecords in db with specific DayRecordId
+            var listOfTimeRecords = _context.TimeRecords.Where(c => c.DayRecordId == dayRecordId).OrderBy(c => c.StartTime).ToList();
+
+            return IsOneRecordNotClosed = listOfTimeRecords.Last().EndTime == null ? IsOneRecordNotClosed = true : IsOneRecordNotClosed;
+        }
+
+        public void SetNormalizeTimetableInTimerLost(DayRecord record)
+        {
+            var user = _userManager.FindByIdAsync(record.UserId).Result;
+            var startWorkTime = (DateTime)user.StartWorkTime;
+            var endWorkTime = (DateTime)user.EndWorkTime;
+            var startLunchTime = user.StartLunchTime;
+            var endLunchTime = user.EndLunchTime;
+
+            //change db.DayRecord.Data value - i.e DateTime.Add(TimeSpan time)
+            record.Data = record.Data.Date.Add(startWorkTime.TimeOfDay);
+            record.StartDayDelayExplanation = null;
+            record.EndDayDelayExplanation = null;
+            //find all TimeRecords (with this record.Id) and remove it 
+            foreach (var timerecord in _context.TimeRecords)
+            {
+                if (timerecord.DayRecordId == record.Id)
+                    _context.TimeRecords.Remove(timerecord);
+            }
+            //Add two normalized entries to db.TimeRecords 9:00 - 13:00 and 14:00 - 18:00
+            var timeSpan1 = new TimeSpan(13, 0, 0);
+            var startlunch = startLunchTime == null ? timeSpan1 : ((DateTime)startLunchTime).TimeOfDay;
+            var timeSpan2 = new TimeSpan(14, 0, 0);
+            var endLunch = endLunchTime == null ? timeSpan2 : ((DateTime)endLunchTime).TimeOfDay;
+
+            var newTimeRecordBeforeLunch = new TimeRecord()
+            {
+                StartTime = record.Data.Date.Add(startWorkTime.TimeOfDay),
+                EndTime = record.Data.Date.Add(startlunch),
+                DayRecordId = record.Id
+            };
+            var newTimeRecordAfterLunch = new TimeRecord()
+            {
+                StartTime = record.Data.Date.Add(endLunch),
+                EndTime = record.Data.Date.Add(endWorkTime.TimeOfDay),
+                DayRecordId = record.Id
+            };
+            _context.TimeRecords.Add(newTimeRecordBeforeLunch);
+            _context.TimeRecords.Add(newTimeRecordAfterLunch);
+
+            //remove Intervals with this Record.Id
+            foreach (var intervalrecord in _context.IntervalRecords)
+            {
+                if (intervalrecord.DayRecordId == record.Id)
+                    _context.IntervalRecords.Remove(intervalrecord);
+            }
+
+            //add new normalize Inerval Record - 13:00 -14:00 Lunch
+
+            var normalizeInterval = new IntervalRecord()
+            {
+                StartTime = record.Data.Date.Add(startlunch),
+                EndTime = record.Data.Date.Add(endLunch),
+                DayRecordId = record.Id,
+                IntervalType = "Almoço"
+            };
+            _context.IntervalRecords.Add(normalizeInterval);
+            _context.SaveChanges();
+        }
+
+
         public TimeSpan? GetTotalWorkHoursPorDay(int recordId)
         {
             var intervalsSum = GetTotalIntervalHoursPorDay(recordId);
@@ -97,7 +168,7 @@ namespace Attendance_Performance_Control.Controllers
             return dayEndTime.HasValue ? dayEndTime - dayStartTime - intervalsSum : null;
         }
 
-        public bool UserPertenceToDepartment (string userId, int departId)
+        public bool UserPertenceToDepartment(string userId, int departId)
         {
             bool pertenceToDept = false;
 
@@ -109,11 +180,11 @@ namespace Attendance_Performance_Control.Controllers
             //ger all Records of users that pertence to this list of occupations that pertence to this Department
             foreach (var occupation in occupationListByDept)
             {
-                    if (user.OccupationId == occupation.Id)
-                    {
+                if (user.OccupationId == occupation.Id)
+                {
                     pertenceToDept = true;
                     break;
-                    }
+                }
             }
 
             return pertenceToDept;
@@ -125,12 +196,13 @@ namespace Attendance_Performance_Control.Controllers
             //get all occupations of this Department
             var occupationListByDept = _context.Occupations.Where(c => c.DepartmentId == departId).ToList();
 
+            var adminId = GetAdminUserId();
             //ger all Records of users that pertence to this list of occupations that pertence to this Department
             foreach (var occupation in occupationListByDept)
             {
                 foreach (var user in _context.Users)
                 {
-                    if (user.OccupationId == occupation.Id)
+                    if (user.OccupationId == occupation.Id && user.Id != adminId)
                     {
                         usersList.Add(user);
                     }
@@ -138,6 +210,85 @@ namespace Attendance_Performance_Control.Controllers
             }
 
             return usersList;
+        }
+
+        public string GetAdminUserId()
+        {
+            var adminId = "";
+            foreach (var user in _context.Users)
+            {
+                if (_userManager.IsInRoleAsync(user, "Admin").Result)
+                    adminId = user.Id;
+            }
+            return adminId;
+        }
+
+
+        public class JsonObj
+        {
+            public string x { get; set; }
+            public double y { get; set; }
+        }
+
+        //data: [{
+        //x: '01/02/2019', <- Date
+        //y: 1 <- Total Hours
+        //},
+        //... ]
+        //Could be zero or multiple users
+        public string GetJsonDataForGrafic(List<ReportsViewModel> listOfRecords)
+        {
+            var jsonList = new List<JsonObj>();
+            bool IsAdded = false;
+
+            //this part for test grafic seeding
+            //for(var i=60; i>=0; i--)
+            //{
+            //    var data = DateTime.Now.AddDays(-i).ToShortDateString();
+            //    Random number = new Random();
+            //    var item = new JsonObj() { x= data, y= (number.Next(1,50)+0.2) };
+            //    jsonList.Add(item);
+            //}
+
+            foreach (var record in listOfRecords)
+            {
+                var thisDate = record.Data.ToShortDateString();
+                //convert to int hours for Chart.js
+                var convertedTime = DateTime.Parse(record.TotalHoursForWork);
+                //transform everything in seconds and transform in hours 2.3h
+                double hours = ((convertedTime.Hour * 60 + convertedTime.Minute) * 60 + convertedTime.Second) / 3600.0;
+
+                if (jsonList.Count != 0)
+                {
+                    //check if record with this date allready exist in jsonList
+                    foreach (var item in jsonList)
+                    {
+                        //if date allready exist in jsonList - add houras to y
+                        if (String.Compare(item.x, thisDate) == 0)
+                        {
+                            item.y += hours;
+                            IsAdded = true;
+                            break;
+                        }
+                    }
+                    //date do not exist yet - add to jsonList
+                    if (!IsAdded)
+                    {
+                        var thisJsonObj = new JsonObj() { x = thisDate, y = hours };
+                        jsonList.Add(thisJsonObj);
+                    }
+                }
+                else
+                {
+                    var thisJsonObj = new JsonObj() { x = thisDate, y = hours };
+                    jsonList.Add(thisJsonObj);
+                }
+            }
+
+            //serialize list to Json string and pass to Controller and by ViewData pass to Chart.js
+            var serializedList = JsonSerializer.Serialize(jsonList);
+
+            return serializedList;
         }
     }
 }

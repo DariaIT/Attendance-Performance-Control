@@ -21,11 +21,11 @@ namespace Attendance_Performance_Control.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string dateRangeSearch, string searchByUser, int? searchByDept)
         {
             //GetDefaultRangeDataPicker() - get default date for datarangepicker - "This Month" - ex. "01/09/2020 - 30/09/2020"
-            //Initialize DataRangePicker: initial default value = "This Month"
-            var dateRangeSearch = GetDefaultRangeDataPicker();
+            //Initialize DataRangePicker: initial default value = "This Month" or date period chosen by client
+            dateRangeSearch = String.IsNullOrEmpty(dateRangeSearch) ? GetDefaultRangeDataPicker() : dateRangeSearch;
             ViewData["dateRangeSearch"] = dateRangeSearch;
 
             //find startDate and EndDate from dateRangeSearch string
@@ -43,22 +43,55 @@ namespace Attendance_Performance_Control.Controllers
             var IsAdmin = _userManager.IsInRoleAsync(user, "Admin").Result;
 
             ViewData["IsAdmin"] = IsAdmin;
-            //if Admin => return all records of all users
-            if (IsAdmin)
+
+            //if Admin and search by user is empty => return all records of all users
+            if (IsAdmin && String.IsNullOrEmpty(searchByUser))
                 user = null;
+            //if Admin and search user has value => return search user records
+            else if (IsAdmin && !String.IsNullOrEmpty(searchByUser))
+                user = await _userManager.FindByIdAsync(searchByUser);
             //else, if User => return records of current user
 
             //return list of records of given user
-            //return list of records in dateRangeSearch period: default "This Month"
+            //return list of records in dateRangeSearch period: default "This Month" or defined by client
             //if user=null, return all records of all users (Admin View)
-            var listOfRecords = await CreateReportsViewModel(startDate, endDate, user, null);
+            var listOfRecords = await CreateReportsViewModel(startDate, endDate, user, searchByDept);
 
-            ViewData["Users"] = new SelectList(_context.Users, "Id", "FullName");
-            ViewData["searchByUser"] = null;
+            //if searchByDept is not null, set user search to null value, because it is concurent searching
+            if (searchByDept != null && searchByUser != null)
+            {
+                if (UserPertenceToDepartment(searchByUser, (int)searchByDept))
+                {
+                    ViewData["Users"] = new SelectList(ListOfAllUsersByDepartment((int)searchByDept), "Id", "FullName", searchByUser);
+                    ViewData["searchByUser"] = searchByUser;
+                }
+                //user do not pertence to department
+                else
+                {
+                    ViewData["Users"] = new SelectList(ListOfAllUsersByDepartment((int)searchByDept), "Id", "FullName");
+                    ViewData["searchByUser"] = null;
+                }
+            }
+            else if (searchByDept != null && searchByUser == null)
+            {
+                ViewData["Users"] = new SelectList(ListOfAllUsersByDepartment((int)searchByDept), "Id", "FullName");
+                ViewData["searchByUser"] = null;
+            }
+            else
+            {
+                var adminId = GetAdminUserId();
+                ViewData["Users"] = new SelectList(_context.Users.Where(c => c.Id != adminId), "Id", "FullName", searchByUser);
+                ViewData["searchByUser"] = searchByUser;
+            }
 
-            //Departments list
-            ViewData["Departments"] = new SelectList(_context.Departments, "Id", "DepartmentName");
-            ViewData["searchByDept"] = null;
+            ViewData["Departments"] = new SelectList(_context.Departments, "Id", "DepartmentName", searchByDept);
+            ViewData["searchByDept"] = searchByDept;
+
+            var daysRange = endDate - startDate;
+            var days = daysRange.Days;
+
+            ViewData["GraficDays"] = days;
+            ViewData["JsonDataForGrafic"] = GetJsonDataForGrafic(listOfRecords);
 
             return View(listOfRecords);
         }
@@ -122,13 +155,20 @@ namespace Attendance_Performance_Control.Controllers
                 ViewData["searchByUser"] = null;
             }
             else
-            { 
-                ViewData["Users"] = new SelectList(_context.Users, "Id", "FullName", searchByUser);
+            {
+                var adminId = GetAdminUserId();
+                ViewData["Users"] = new SelectList(_context.Users.Where(c=>c.Id!=adminId), "Id", "FullName", searchByUser);
                 ViewData["searchByUser"] = searchByUser;
             }
 
             ViewData["Departments"] = new SelectList(_context.Departments, "Id", "DepartmentName", searchByDept);
             ViewData["searchByDept"] = searchByDept;
+
+            var daysRange = endDate - startDate;
+            var days = daysRange.Days;
+
+            ViewData["GraficDays"] = days;
+            ViewData["JsonDataForGrafic"] = GetJsonDataForGrafic(listOfRecords);
 
             return View(listOfRecords);
         }
@@ -177,34 +217,80 @@ namespace Attendance_Performance_Control.Controllers
             //create list of ReportsViewModel
             foreach (var record in recordsListOfCurrentUser)
             {
-                var thisUser = await _userManager.FindByIdAsync(record.UserId);
-                var userOccupation = await _context.Occupations.FirstOrDefaultAsync(c => c.Id == thisUser.OccupationId);
-                var userDepartment = await _context.Departments.FirstOrDefaultAsync(c => c.Id == userOccupation.DepartmentId);
-                //create and initialize UserRecordViewModel
-                var reportRecord = new ReportsViewModel()
-                {
-                    DayRecordsId = record.Id,
-                    Data = record.Data,
-                    UserDepartment = userDepartment.DepartmentName,
-                    UserOccupation = userOccupation.OccupationName,
-                    DayStartTime = await GetDateStartTime(record.Id),
-                    StartDayDelayExplanation = record.StartDayDelayExplanation,
-                    DayEndTime = (DateTime)await GetDateEndTime(record.Id),
-                    EndDayDelayExplanation = record.EndDayDelayExplanation,
-                    TotalHoursForWork = ((TimeSpan)GetTotalWorkHoursPorDay(record.Id)).ToString("hh\\:mm\\:ss"),
-                    TotalHoursForIntervals = GetTotalIntervalHoursPorDay(record.Id).ToString("hh\\:mm\\:ss")
-                };
-
                 //add all records except of today
-                if (reportRecord.Data < DateTime.Now)
+                if (record.Data.Date < DateTime.Now.Date)
                 {
+                    //check if exist TimeRecord with EndTime = null
+                    var IsOneRecordNotClosed = CheckIfOneRecordNotClosed(record.Id);
+                    if (IsOneRecordNotClosed)
+                        SetNormalizeTimetableInTimerLost(record);
+
+                    var thisUser = await _userManager.FindByIdAsync(record.UserId);
+                    var userOccupation = await _context.Occupations.FirstOrDefaultAsync(c => c.Id == thisUser.OccupationId);
+                    var userDepartment = await _context.Departments.FirstOrDefaultAsync(c => c.Id == userOccupation.DepartmentId);
+                    //create and initialize UserRecordViewModel
+                    var reportRecord = new ReportsViewModel()
+                    {
+                        DayRecordsId = record.Id,
+                        Data = record.Data,
+                        UserDepartment = userDepartment.DepartmentName,
+                        UserOccupation = userOccupation.OccupationName,
+                        DayStartTime = await GetDateStartTime(record.Id),
+                        StartDayDelayExplanation = record.StartDayDelayExplanation,
+                        DayEndTime = (DateTime)await GetDateEndTime(record.Id),
+                        EndDayDelayExplanation = record.EndDayDelayExplanation,
+                        TotalHoursForWork = ((TimeSpan)GetTotalWorkHoursPorDay(record.Id)).ToString("hh\\:mm\\:ss"),
+                        TotalHoursForIntervals = GetTotalIntervalHoursPorDay(record.Id).ToString("hh\\:mm\\:ss")
+                    };
+
                     listOfReportsViewModel.Add(reportRecord);
                 }
-
             }
 
             //return list of UserRecordViewModel
             return listOfReportsViewModel;
+        }
+
+        public async Task<IActionResult> DetailsRecord (int? id, string dateRangeSearch, string searchByUser, int? searchByDept)
+        {
+            ViewData["dateRangeSearch"] = dateRangeSearch;
+            ViewData["searchByUser"] = searchByUser;
+            ViewData["searchByDept"] = searchByDept;
+
+            if (id == null)
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+                return RedirectToAction("Index", new { dateRangeSearch, searchByUser, searchByDept });
+            }
+
+            var record = await _context.DayRecords.FindAsync(id);
+            var user = await _userManager.FindByIdAsync(record.UserId);
+
+            ViewData["Nome"] = user.FullName;
+            ViewData["Email"] = user.Email;
+
+            var intervalsList = await _context.IntervalRecords.Where(c => c.DayRecordId == id).ToListAsync();
+
+            ViewData["IntervalsList"] = intervalsList;
+
+            var userOccupation = await _context.Occupations.FirstOrDefaultAsync(c => c.Id == user.OccupationId);
+            var userDepartment = await _context.Departments.FirstOrDefaultAsync(c => c.Id == userOccupation.DepartmentId);
+            //create and initialize UserRecordViewModel
+            var reportRecord = new ReportsViewModel()
+            {
+                DayRecordsId = record.Id,
+                Data = record.Data,
+                UserDepartment = userDepartment.DepartmentName,
+                UserOccupation = userOccupation.OccupationName,
+                DayStartTime = await GetDateStartTime(record.Id),
+                StartDayDelayExplanation = record.StartDayDelayExplanation,
+                DayEndTime = (DateTime)await GetDateEndTime(record.Id),
+                EndDayDelayExplanation = record.EndDayDelayExplanation,
+                TotalHoursForWork = ((TimeSpan)GetTotalWorkHoursPorDay(record.Id)).ToString("hh\\:mm\\:ss"),
+                TotalHoursForIntervals = GetTotalIntervalHoursPorDay(record.Id).ToString("hh\\:mm\\:ss")
+            };
+
+            return View(reportRecord);
         }
     }
 
