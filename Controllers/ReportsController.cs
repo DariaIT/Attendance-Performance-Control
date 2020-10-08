@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Attendance_Performance_Control.Controllers
 {
@@ -93,6 +94,29 @@ namespace Attendance_Performance_Control.Controllers
             ViewData["GraficDays"] = days;
             ViewData["JsonDataForGrafic"] = GetJsonDataForGrafic(listOfRecords);
 
+            //totals for graf and reports
+            var totalWork = TotalWorkHoursFromRecordsList(listOfRecords);
+            var totalInterv = TotalIntervalsHoursFromRecordsList(listOfRecords);
+            ViewData["TotalWork"] = totalWork;
+            ViewData["TotalIntervals"] = totalInterv;
+
+            //data for report title
+            ViewData["ReportTitle"] = "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.";
+            ViewData["ReportData"] = DateTime.Now.ToShortDateString();
+
+            if (searchByDept != null)
+                ViewData["ReportDepart"] = _context.Departments.Where(c => c.Id == searchByDept).FirstOrDefault().DepartmentName;
+            if (user != null)
+            {
+                var userOccupation = _context.Occupations.FirstOrDefault(c => c.Id == user.OccupationId);
+                var userDepartment = _context.Departments.FirstOrDefault(c => c.Id == userOccupation.DepartmentId);
+
+                ViewData["ReportName"] = user.FullName;
+                if (searchByDept == null)
+                    ViewData["ReportDepart"] = userDepartment.DepartmentName;
+                ViewData["ReportOccup"] = userOccupation.OccupationName;
+            }
+
             return View(listOfRecords);
         }
 
@@ -170,7 +194,30 @@ namespace Attendance_Performance_Control.Controllers
             ViewData["GraficDays"] = days;
             ViewData["JsonDataForGrafic"] = GetJsonDataForGrafic(listOfRecords);
 
-            return View(listOfRecords);
+            //totals for graf and reports
+            var totalWork = TotalWorkHoursFromRecordsList(listOfRecords);
+            var totalInterv = TotalIntervalsHoursFromRecordsList(listOfRecords);
+            ViewData["TotalWork"] = totalWork;
+            ViewData["TotalIntervals"] = totalInterv;
+
+            //data for report title
+            ViewData["ReportTitle"] = "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.";
+            ViewData["ReportData"] = DateTime.Now.ToShortDateString();
+
+            if (searchByDept != null)
+                ViewData["ReportDepart"] = _context.Departments.Where(c => c.Id == searchByDept).FirstOrDefault().DepartmentName;
+            if (user != null)
+            {
+                var userOccupation = _context.Occupations.FirstOrDefault(c => c.Id == user.OccupationId);
+                var userDepartment = _context.Departments.FirstOrDefault(c => c.Id == userOccupation.DepartmentId);
+
+                ViewData["ReportName"] = user.FullName;
+                if (searchByDept == null)
+                    ViewData["ReportDepart"] = userDepartment.DepartmentName;
+                ViewData["ReportOccup"] = userOccupation.OccupationName;
+            }
+
+        return View(listOfRecords);
         }
 
 

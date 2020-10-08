@@ -91,6 +91,34 @@
     {
       "library": "chartjs-adapter-moment@0.1.2",
       "destination": "wwwroot/lib/chartjs-adapter-moment/"
+    },
+    {
+      "library": "datatables@1.10.21",
+      "destination": "wwwroot/lib/datatables/"
+    },
+    {
+      "library": "datatables.net-responsive-bs4@2.2.6",
+      "destination": "wwwroot/lib/datatables.net-responsive-bs4/"
+    },
+    {
+      "library": "datatables-responsive@2.2.6",
+      "destination": "wwwroot/lib/datatables-responsive/"
+    },
+    {
+      "library": "datatables-buttons@1.6.4",
+      "destination": "wwwroot/lib/datatables-buttons/"
+    },
+    {
+      "library": "jszip@3.5.0",
+      "destination": "wwwroot/lib/jszip/"
+    },
+    {
+      "library": "pdfmake@0.1.68",
+      "destination": "wwwroot/lib/pdfmake/"
+    },
+    {
+      "library": "datatables.net-buttons-dt@1.6.4",
+      "destination": "wwwroot/lib/datatables.net-buttons-dt/"
     }
   ]
 }

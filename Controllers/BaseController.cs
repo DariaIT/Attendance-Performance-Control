@@ -290,5 +290,64 @@ namespace Attendance_Performance_Control.Controllers
 
             return serializedList;
         }
+
+
+      public string TotalWorkHoursFromRecordsList(List<ReportsViewModel> listOfRecords)
+        {
+            int hours = 0;
+            int minuts = 0;
+            int seconds = 0;
+            foreach (var record in listOfRecords)
+            {
+                 hours += DateTime.Parse(record.TotalHoursForWork).Hour;
+                 minuts += DateTime.Parse(record.TotalHoursForWork).Minute;
+                 seconds += DateTime.Parse(record.TotalHoursForWork).Second;
+            }
+            //format hours, minuts and seconds
+            //seconds to minuts
+            int minInt = seconds / 60;
+            minuts += minInt;
+            seconds = seconds - minInt * 60;
+            //minuts to hours
+            int hourInt = minuts / 60;
+            hours += hourInt;
+            minuts = minuts - hourInt * 60;
+
+            //to string time format ex 9 -> 09
+            string hoursStr = hours > 9 ? hours.ToString() : String.Concat("0", hours);
+            string minutsStr = minuts > 9 ? minuts.ToString() : String.Concat("0", minuts);
+            string secondsStr = seconds > 9 ? seconds.ToString() : String.Concat("0", seconds);
+
+            return String.Concat(hoursStr, ":", minutsStr, ":", secondsStr);
+        }
+
+        public string TotalIntervalsHoursFromRecordsList(List<ReportsViewModel> listOfRecords)
+        {
+            int hours = 0;
+            int minuts = 0;
+            int seconds = 0;
+            foreach (var record in listOfRecords)
+            {
+                hours += DateTime.Parse(record.TotalHoursForIntervals).Hour;
+                minuts += DateTime.Parse(record.TotalHoursForIntervals).Minute;
+                seconds += DateTime.Parse(record.TotalHoursForIntervals).Second;
+            }
+            //format hours, minuts and seconds
+            //seconds to minuts
+            int minInt = seconds / 60;
+            minuts += minInt;
+            seconds = seconds - minInt * 60;
+            //minuts to hours
+            int hourInt = minuts / 60;
+            hours += hourInt;
+            minuts = minuts - hourInt * 60;
+
+            //to string time format ex 9 -> 09
+            string hoursStr = hours > 9 ? hours.ToString() : String.Concat("0", hours);
+            string minutsStr = minuts > 9 ? minuts.ToString() : String.Concat("0", minuts);
+            string secondsStr = seconds > 9 ? seconds.ToString() : String.Concat("0", seconds);
+
+            return String.Concat(hoursStr, ":", minutsStr, ":", secondsStr);
+        }
     }
 }

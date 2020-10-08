@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Prévia Safe</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex,nofollow" />
 
     <!-- Add local styles, mostly for plugins css file -->
     @if (IsSectionDefined("Styles"))
@@ -20,6 +21,9 @@
         <link rel="stylesheet" href="~/css/animate.css" />
         <link rel="stylesheet" href="~/lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.css" />
         <link rel="stylesheet" href="~/lib/Chart.js/Chart.css" />
+        <link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.css" />
+        <link rel="stylesheet" href="~/lib/datatables.net-responsive-bs4/responsive.bootstrap4.css" />
+        <link rel="stylesheet" href="~/lib/datatables.net-buttons-dt/buttons.dataTables.css" />
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     </environment>
@@ -32,6 +36,9 @@
         <link rel="stylesheet" href="~/css/animate.css" />
         <link rel="stylesheet" href="~/lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
         <link rel="stylesheet" href="~/lib/Chart.js/Chart.min.css" />
+        <link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css" />
+        <link rel="stylesheet" href="~/lib/datatables.net-responsive-bs4/responsive.bootstrap4.min.css" />
+        <link rel="stylesheet" href="~/lib/datatables.net-buttons-dt/buttons.dataTables.min.css" />
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
     </environment>
@@ -53,9 +60,9 @@
             @*@Html.Partial("_TopNavbar", @ViewData["Title"])*@
 
             <!-- Main view  -->
-        <div class="container-fluid pt-2 pb-5 mb-5">
-            @RenderBody()
-        </div>
+            <div class="container-fluid pt-2 pb-5 mb-5">
+                @RenderBody()
+            </div>
             <!-- Footer -->
             <partial name="_Footer" />
 
@@ -76,6 +83,20 @@
         <script src="~/lib/pace/pace.js"></script>
         <script src="~/lib/Chart.js/Chart.js"></script>
         <script src="~/lib/chartjs-adapter-moment/chartjs-adapter-moment.js"></script>
+        <!--DataTables-->
+        <script src="~/lib/datatables/js/jquery.dataTables.js"></script>
+        <script src="~/lib/datatables/js/dataTables.bootstrap4.js"></script>
+        <script src="~/lib/datatables-responsive/dataTables.responsive.js"></script>
+        <script src="~/lib/datatables.net-responsive-bs4/responsive.bootstrap4.js"></script>
+        <!--DataTables: print, save pdf, csv-->
+        <script src="~/lib/datatables-buttons/js/dataTables.buttons.js"></script>
+        <script src="~/lib/datatables-buttons/js/buttons.flash.js"></script>
+        <script src="~/lib/jszip/jszip.js"></script>
+        <script src="~/lib/pdfmake/pdfmake.js"></script>
+        <script src="~/lib/pdfmake/vfs_fonts.js"></script>
+        <script src="~/lib/datatables-buttons/js/buttons.html5.js"></script>
+        <script src="~/lib/datatables-buttons/js/buttons.print.js"></script>
+
         <script src="~/js/script.js" asp-append-version="true"></script>
 
     </environment>
@@ -90,24 +111,31 @@
         <script src="~/lib/jQuery-slimScroll/jquery.slimscroll.min.js"></script>
         <script src="~/lib/Chart.js/Chart.min.js"></script>
         <script src="~/lib/chartjs-adapter-moment/chartjs-adapter-moment.min.js"></script>
+        <!--DataTables-->
+        <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+        <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+        <script src="~/lib/datatables-responsive/dataTables.responsive.min.js"></script>
+        <script src="~/lib/datatables.net-responsive-bs4/responsive.bootstrap4.min.js"></script>
+        <!--DataTables: print, save pdf, csv-->
+        <script src="~/lib/datatables-buttons/js/dataTables.buttons.min.js"></script>
+        <script src="~/lib/datatables-buttons/js/buttons.flash.min.js"></script>
+        <script src="~/lib/jszip/jszip.min.js"></script>
+        <script src="~/lib/pdfmake/pdfmake.min.js"></script>
+        <script src="~/lib/pdfmake/vfs_fonts.min.js"></script>
+        <script src="~/lib/datatables-buttons/js/buttons.html5.min.js"></script>
+        <script src="~/lib/datatables-buttons/js/buttons.print.min.js"></script>
+
         <script src="~/js/script.js" asp-append-version="true"></script>
     </environment>
-
-    <!--Jquery DataTable-->
-
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.5/css/responsive.bootstrap4.min.css" />
-
-    <script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.5/js/dataTables.responsive.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.5/js/responsive.bootstrap4.min.js"></script>
 
 
     <script type="text/javascript">
         $(document).ready(function () {
             $('#UsersTable').DataTable({
-
+                "columnDefs": [{
+                    "targets": 8,
+                    "orderable": false
+                }],
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ Registros por página",
                     "search": "Procurar",
@@ -118,26 +146,10 @@
                     "infoFiltered": "(filtrado de _MAX_ regitros totais)"
                 }
             });
-
-            $('#ReportsTable').DataTable({
-
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ Registros por página",
-                    "search": "Procurar",
-                    "paginate": { "previous": "Anterior", "next": "Próximo" },
-                    "zeroRecords": "Nada foi encontrado",
-                    "info": "Página _PAGE_ de _PAGES_",
-                    "infoEmpty": "Sem registros",
-                    "infoFiltered": "(filtrado de _MAX_ regitros totais)"
-                },
-                "columnDefs": [{
-                    "targets": 9,
-                    "orderable": false
-                }]
-            });
+           
         });
-        
-        
+
+
     </script>
     <!--End Jquery DataTable-->
 

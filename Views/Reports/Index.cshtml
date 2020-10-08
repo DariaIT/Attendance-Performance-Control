@@ -85,7 +85,8 @@
 <div class="col-12">
     <div class="ibox ">
         <div class="ibox-title">
-            <h5>Total: </h5>
+            <h5 class="pr-3">Total Trabalho(h): @ViewData["TotalWork"] </h5>
+            <h5>Total Intervalos(h): @ViewData["TotalIntervals"]</h5>
         </div>
         <div class="ibox-content">
             <div>
@@ -133,40 +134,40 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Data)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserDepartment)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserOccupation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DayStartTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDayDelayExplanation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DayEndTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDayDelayExplanation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalHoursForIntervals)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalHoursForWork)
-            </td>
-            <td>
-                <a class="btn p-0" title="Ver Detalhes" asp-controller="Reports" asp-action="DetailsRecord" asp-route-Id="@item.DayRecordsId" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-searchByUser="@ViewData["searchByUser"]" asp-route-searchByDept="@ViewData["searchByDept"]">
-                    <i style="font-size:16px" class="fa fa-info-circle icone"></i>
-                </a>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Data)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserDepartment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserOccupation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DayStartTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDayDelayExplanation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DayEndTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDayDelayExplanation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalHoursForIntervals)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalHoursForWork)
+                </td>
+                <td>
+                    <a class="btn p-0" title="Ver Detalhes" asp-controller="Reports" asp-action="DetailsRecord" asp-route-Id="@item.DayRecordsId" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-searchByUser="@ViewData["searchByUser"]" asp-route-searchByDept="@ViewData["searchByDept"]">
+                        <i style="font-size:16px" class="fa fa-info-circle icone"></i>
+                    </a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -299,6 +300,102 @@
             var ctx2 = document.getElementById("barChart").getContext("2d");
             new Chart(ctx2, { type: 'bar', data: barData, options: barOptions });
 
+
+            $('#ReportsTable').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ Registros por página",
+                    "search": "Procurar",
+                    "paginate": { "previous": "Anterior", "next": "Próximo" },
+                    "zeroRecords": "Nada foi encontrado",
+                    "info": "Página _PAGE_ de _PAGES_",
+                    "infoEmpty": "Sem registros",
+                    "infoFiltered": "(filtrado de _MAX_ regitros totais)",
+                    "buttons": {
+                        copyTitle: 'Copiado para a área de transferência',
+                        copySuccess: {
+                            _: '%d linhas copiadas para a área de transferência',
+                            1: '1 linha copiada para a área de transferência'
+                        }
+                    }
+                },
+                "columnDefs": [{
+                    "targets": 9,
+                    "orderable": false
+                }],
+                dom: 'lBfrtip',
+                buttons: [
+                    {
+                    extend: 'pdf',
+                    title: "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.",
+                    filename: "Relatorio-Previa-Safe",
+                    messageTop: function () {
+                        var data = '@Html.Raw(ViewData["ReportData"])';
+                        var name = '@Html.Raw(ViewData["ReportName"])';
+                        var depart = '@Html.Raw(ViewData["ReportDepart"])';
+                        var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                        return 'Data: ' + data + '\n' + 'Nome: ' + name + '\n' + 'Departamento: ' + depart + '\n' +
+                             'Cargo: ' + occup + '\n' + 'Total Trabalho(h): ' + totalWork + '\n' +
+                             'Total Intervalos(h): ' + totalInterv + '\n';
+                        }
+                }, {
+                    extend: 'excel',
+                    title: "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.",
+                    filename: "Relatorio-Previa-Safe",                   
+                    messageTop: function () {
+                        var data = '@Html.Raw(ViewData["ReportData"])';
+                        var name = '@Html.Raw(ViewData["ReportName"])';
+                        var depart = '@Html.Raw(ViewData["ReportDepart"])';
+                        var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                        return 'Data: ' + data + ',  ' + 'Nome: ' + name + ',  ' + 'Departamento: ' + depart + ',  ' +
+                            'Cargo: ' + occup + ',  ' + 'Total Trabalho(h): ' + totalWork + ',  ' +
+                             'Total Intervalos(h): ' + totalInterv;
+                        }
+                },
+                    {
+                        extend: 'copy',
+                        title: "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.",
+                        text: '<i class="far fa-copy" style="font-size:14px"></i>',
+                        titleAttr: 'Copiar',
+                        messageTop: function () {
+                        var data = '@Html.Raw(ViewData["ReportData"])';
+                        var name = '@Html.Raw(ViewData["ReportName"])';
+                        var depart = '@Html.Raw(ViewData["ReportDepart"])';
+                        var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                        return 'Data: ' + data + '\n' + 'Nome: ' + name + '\n' + 'Departamento: ' + depart + '\n' +
+                             'Cargo: ' + occup + '\n' + 'Total Trabalho(h): ' + totalWork + '\n' +
+                             'Total Intervalos(h): ' + totalInterv + '\n';
+                        }
+                },
+                   {
+                       extend: 'print',
+                       title: "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.",
+                       text: '<i class="fas fa-print" style="font-size:14px"></i>',
+                       titleAttr: 'Imprimir',
+                       exportOptions: {
+                           stripHtml: false
+                       },
+                       customize: function (win) {
+                           $(win.document.body).css('background', '#ffffff');
+                       },
+                        messageTop: function () {
+                        var data = '@Html.Raw(ViewData["ReportData"])';
+                        var name = '@Html.Raw(ViewData["ReportName"])';
+                        var depart = '@Html.Raw(ViewData["ReportDepart"])';
+                        var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                            return 'Data: ' + data + '</br>' + 'Nome: ' + name + '</br>' + 'Departamento: ' + depart + '</br>' +
+                                'Cargo: ' + occup + '</br>' + 'Total Trabalho(h): ' + totalWork + '</br>' +
+                                'Total Intervalos(h): ' + totalInterv + '</br>';
+                        }
+                    }]
+            });
         });
 
 
