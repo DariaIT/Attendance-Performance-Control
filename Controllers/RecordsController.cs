@@ -21,6 +21,7 @@ namespace Attendance_Performance_Control.Controllers
     {
         public RecordsController(
             ApplicationDbContext context,
+            //ReadOnlyBigalconDbContext contextBigalcon,
             UserManager<ApplicationUser> userManager) : base(context, userManager)
         {
         }
@@ -189,7 +190,7 @@ namespace Attendance_Performance_Control.Controllers
                 {
                     //check if exist TimeRecord with EndTime = null
                     var IsOneRecordNotClosed = CheckIfOneRecordNotClosed(record.Id);
-                    if(IsOneRecordNotClosed)
+                    if (IsOneRecordNotClosed)
                         SetNormalizeTimetableInTimerLost(record);
                 }
 
@@ -491,7 +492,7 @@ namespace Attendance_Performance_Control.Controllers
             if (id == null)
             {
                 TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
-                return RedirectToAction( "Index", new { dateSortParam, dateRangeSearch, page });
+                return RedirectToAction("Index", new { dateSortParam, dateRangeSearch, page });
             }
 
             var thisInterval = await _context.IntervalRecords.FindAsync(id);
@@ -561,156 +562,5 @@ namespace Attendance_Performance_Control.Controllers
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // GET: Records/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var dayRecord = await _context.DayRecords
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (dayRecord == null)
-            {
-                return NotFound();
-            }
-
-            return View(dayRecord);
-        }
-
-        // GET: Records/Create
-        public IActionResult Create()
-        {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Records/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Data,UserId")] DayRecord dayRecord)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(dayRecord);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", dayRecord.UserId);
-            return View(dayRecord);
-        }
-
-        // GET: Records/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var dayRecord = await _context.DayRecords.FindAsync(id);
-            if (dayRecord == null)
-            {
-                return NotFound();
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", dayRecord.UserId);
-            return View(dayRecord);
-        }
-
-        // POST: Records/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Data,UserId")] DayRecord dayRecord)
-        {
-            if (id != dayRecord.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(dayRecord);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DayRecordExists(dayRecord.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", dayRecord.UserId);
-            return View(dayRecord);
-        }
-
-        // GET: Records/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var dayRecord = await _context.DayRecords
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (dayRecord == null)
-            {
-                return NotFound();
-            }
-
-            return View(dayRecord);
-        }
-
-        // POST: Records/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var dayRecord = await _context.DayRecords.FindAsync(id);
-            _context.DayRecords.Remove(dayRecord);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool DayRecordExists(int id)
-        {
-            return _context.DayRecords.Any(e => e.Id == id);
-        }
     }
 }

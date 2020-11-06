@@ -15,13 +15,16 @@ namespace Attendance_Performance_Control.Controllers
     {
 
         protected readonly ApplicationDbContext _context;
+        protected readonly ReadOnlyBigalconDbContext _contextBigalcon;
         protected readonly UserManager<ApplicationUser> _userManager;
 
         public BaseController(
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            //ReadOnlyBigalconDbContext contextBigalcon,
+        UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            //_contextBigalcon = contextBigalcon;
             _userManager = userManager;
         }
 
@@ -292,26 +295,26 @@ namespace Attendance_Performance_Control.Controllers
         }
 
 
-      public string TotalWorkHoursFromRecordsList(List<ReportsViewModel> listOfRecords)
+        public string TotalWorkHoursFromRecordsList(List<ReportsViewModel> listOfRecords)
         {
             int hours = 0;
             int minuts = 0;
             int seconds = 0;
             foreach (var record in listOfRecords)
             {
-                 hours += DateTime.Parse(record.TotalHoursForWork).Hour;
-                 minuts += DateTime.Parse(record.TotalHoursForWork).Minute;
-                 seconds += DateTime.Parse(record.TotalHoursForWork).Second;
+                hours += DateTime.Parse(record.TotalHoursForWork).Hour;
+                minuts += DateTime.Parse(record.TotalHoursForWork).Minute;
+                seconds += DateTime.Parse(record.TotalHoursForWork).Second;
             }
             //format hours, minuts and seconds
             //seconds to minuts
             int minInt = seconds / 60;
             minuts += minInt;
-            seconds = seconds - minInt * 60;
+            seconds -= minInt * 60;
             //minuts to hours
             int hourInt = minuts / 60;
             hours += hourInt;
-            minuts = minuts - hourInt * 60;
+            minuts -= hourInt * 60;
 
             //to string time format ex 9 -> 09
             string hoursStr = hours > 9 ? hours.ToString() : String.Concat("0", hours);
@@ -336,11 +339,11 @@ namespace Attendance_Performance_Control.Controllers
             //seconds to minuts
             int minInt = seconds / 60;
             minuts += minInt;
-            seconds = seconds - minInt * 60;
+            seconds -= minInt * 60;
             //minuts to hours
             int hourInt = minuts / 60;
             hours += hourInt;
-            minuts = minuts - hourInt * 60;
+            minuts -= hourInt * 60;
 
             //to string time format ex 9 -> 09
             string hoursStr = hours > 9 ? hours.ToString() : String.Concat("0", hours);

@@ -17,6 +17,7 @@ namespace Attendance_Performance_Control.Controllers
 
         public ReportsController(
             ApplicationDbContext context,
+            //ReadOnlyBigalconDbContext contextBigalcon,
             UserManager<ApplicationUser> userManager) : base(context, userManager)
         {
         }
@@ -116,6 +117,9 @@ namespace Attendance_Performance_Control.Controllers
                     ViewData["ReportDepart"] = userDepartment.DepartmentName;
                 ViewData["ReportOccup"] = userOccupation.OccupationName;
             }
+
+            //var testQuery = _contextBigalcon.contactosTaxas.ToList();
+            //ViewData["List"] = testQuery;
 
             return View(listOfRecords);
         }

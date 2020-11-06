@@ -13,9 +13,10 @@
                     <img class="img-fluid" src=@Url.Content("~/images/logo/logo-previa-safe-no-text-white.png") />
                 </div>
             </li>
-            <li class="@Html.IsSelected(controller: "Home", action: "Index")">
+            <!--Temporary disable Main Page quick access -->
+            @*<li class="@Html.IsSelected(controller: "Home", action: "Index")">
                 <a href="@Url.Action("Index", "Home")"><i class="fa fa-border-all"></i> <span class="nav-label">Painel do Controlo</span> <span class="label label-primary float-right">Início</span></a>
-            </li>
+            </li>*@
 
             <!--Show just for Admin-->
             @if (@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)

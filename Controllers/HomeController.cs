@@ -29,7 +29,9 @@ namespace Attendance_Performance_Control.Controllers
                 //Pass info to view if user is in role of admin
                 ViewData["IsInRoleAdmin"] = await _userManager.IsInRoleAsync(user, "Admin");
             }
-            return View();
+            //return View();
+            //temporary redirect from Main Page quick acess to Records Index page directly
+            return RedirectToAction("Index", "Records");
         }
 
         public IActionResult Privacy()

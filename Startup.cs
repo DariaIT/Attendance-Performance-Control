@@ -18,6 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace Attendance_Performance_Control
 {
@@ -41,8 +42,6 @@ namespace Attendance_Performance_Control
             _adminEmail = Configuration["Attendence-Control:AdminEmail"];
             _adminPass = Configuration["Attendence-Control:AdminPass"];
 
-            //_adminEmail = "Previa2020!";
-            //_adminPass = "a.marum@previa.pt";
 
             // Add default portuguese culture
             services.Configure<RequestLocalizationOptions>(options =>
@@ -79,9 +78,27 @@ namespace Attendance_Performance_Control
                     "O valor deve ser o número.");
             });
 
+            //Application DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+            //Bigalcon DbContext
+            //services.AddDbContextPool<ReadOnlyBigalconDbContext>(options =>
+            //    options.UseMySql(
+            //        Configuration.GetConnectionString("MySQLConnection")));
+
+            // BigAlcon MySQL Connection
+            //services.AddDbContextPool<ReadOnlyBigalconDbContext>(
+            //    dbContextOptions =>
+            //    dbContextOptions.UseMySql(
+            //            // Replace with your connection string.
+            //            Configuration.GetConnectionString("MySQLConnection")));
+            //            // Replace with your server version and type.
+            //            //mySqlOptions => mySqlOptions
+            //            //    .ServerVersion(new Version(5, 5, 41), ServerType.MySql)
+            //            //    .CharSetBehavior(CharSetBehavior.NeverAppend)));
+
             services.AddDefaultIdentity<ApplicationUser>(options =>
                     options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
@@ -134,7 +151,7 @@ namespace Attendance_Performance_Control
                 //A flag that says the cookie is only available to servers.
                 //The browser only sends the cookie but cannot access it through JavaScript.
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                options.ExpireTimeSpan = TimeSpan.FromHours(24);
 
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";

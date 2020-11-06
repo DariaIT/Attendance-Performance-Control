@@ -7,25 +7,33 @@
 @{
     if (TempData["Success"] != null)
     {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @TempData["Success"]
-    </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Success"]
+        </div>
     }
     if (TempData["Failure"] != null)
     {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        @TempData["Failure"]
-    </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Failure"]
+        </div>
     }
 }
 <!--End Show errors on fail or success-->
-
+<!--Example Connection to Bigalcon MySQL Database-->
+@*@foreach (var itemList in ViewData["List"] as List<contactosTaxas>)
+    {
+        <p>@itemList.ID</p>
+        <p>@itemList.contactoID</p>
+        <p>@itemList.tarefaKindID</p>
+        <p>@itemList.taxa</p>
+    }*@
+<!--End Example Connection to Bigalcon MySQL Database-->
 
 <div class="p-2 animate__animated animate__fadeIn">
 
@@ -46,33 +54,33 @@
             @if ((bool)ViewData["IsAdmin"])
             {
                 <!--Filter by User Id-Name-->
-            <div class="col-6 col-md-3">
-                <div class="input-group">
-                    <select id="searchByUser" name="searchByUser" value="@ViewData["searchByUser"]" class="form-control" asp-items="@ViewData["Users"] as SelectList">
-                        <option value="@String.Empty">Todos</option>
-                    </select>
-                    <div class="input-group-append">
-                        <label for="searchByUser">
-                            <i class="fa fa-user fa-2x pl-1 pt-1 icone"></i>
-                        </label>
+                <div class="col-6 col-md-3">
+                    <div class="input-group">
+                        <select id="searchByUser" name="searchByUser" value="@ViewData["searchByUser"]" class="form-control" asp-items="@ViewData["Users"] as SelectList">
+                            <option value="@String.Empty">Todos</option>
+                        </select>
+                        <div class="input-group-append">
+                            <label for="searchByUser">
+                                <i class="fa fa-user fa-2x pl-1 pt-1 icone"></i>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
- <!--End Filter by User Id-Name-->
- <!--Filter by Department-->
-            <div class="col-6 col-md-3">
-                <div class="input-group">
-                    <select id="searchByDept" name="searchByDept" value="@ViewData["searchByDept"]" class="form-control" asp-items="@ViewData["Departments"] as SelectList">
-                        <option value="@String.Empty">Todos</option>
-                    </select>
-                    <div class="input-group-append">
-                        <label for="searchByDept">
-                            <i class="fa fa-building fa-2x pl-1 pt-1 icone"></i>
-                        </label>
+                <!--End Filter by User Id-Name-->
+                <!--Filter by Department-->
+                <div class="col-6 col-md-3">
+                    <div class="input-group">
+                        <select id="searchByDept" name="searchByDept" value="@ViewData["searchByDept"]" class="form-control" asp-items="@ViewData["Departments"] as SelectList">
+                            <option value="@String.Empty">Todos</option>
+                        </select>
+                        <div class="input-group-append">
+                            <label for="searchByDept">
+                                <i class="fa fa-building fa-2x pl-1 pt-1 icone"></i>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
- <!--End Filter by Department-->
+                <!--End Filter by Department-->
             }
             <div class="col-6 col-md-3">
                 <input type="submit" value="Filtrar" class="btn btn-primary" />
@@ -342,7 +350,7 @@
                 }, {
                     extend: 'excel',
                     title: "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.",
-                    filename: "Relatorio-Previa-Safe",                   
+                    filename: "Relatorio-Previa-Safe",
                     messageTop: function () {
                         var data = '@Html.Raw(ViewData["ReportData"])';
                         var name = '@Html.Raw(ViewData["ReportName"])';

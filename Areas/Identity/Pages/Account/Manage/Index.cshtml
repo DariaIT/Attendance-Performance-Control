@@ -29,7 +29,7 @@
             </div>
 
             @{
-                if(!((bool)@ViewData["IsInRoleAdmin"]))
+                if (!((bool)@ViewData["IsInRoleAdmin"]))
                 {
                     <div class="form-group">
                         <label asp-for="Input.OccupationId"></label>
@@ -37,6 +37,14 @@
                             <option>Escolha o cargo ...</option>
                         </select>
                         <span asp-validation-for="Input.OccupationId" class="text-danger"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label asp-for="Input.OccupationId"></label>
+                        <div class="form-control" style="background-color:#e9ecef">@ViewData["AdminOccupName"]</div>
+                        <input type="hidden" asp-for="Input.OccupationId" />
                     </div>
                 }
             }

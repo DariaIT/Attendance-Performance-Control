@@ -80,13 +80,16 @@ namespace Attendance_Performance_Control.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Não foi possível carregar utilizador com o ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var occupationsList = await _context.Occupations.Where(c => c.Id != 8).OrderBy(c => c.OccupationName).ToListAsync();
-            ViewData["Occupations"] = new SelectList(occupationsList, "Id", "OcupationName");
+            var occupationsList = await _context.Occupations.Where(c => c.Id != 6).OrderBy(c => c.OccupationName).ToListAsync();
+            ViewData["Occupations"] = new SelectList(occupationsList, "Id", "OccupationName");
 
             await LoadAsync(user);
 
             //Pass info to view if user is in role of admin
             ViewData["IsInRoleAdmin"] = await _userManager.IsInRoleAsync(user, "Admin");
+
+            //Get Admin Occupation Name
+            ViewData["AdminOccupName"] = _context.Occupations.FirstOrDefault(c => c.Id == 6).OccupationName;
 
             return Page();
         }
