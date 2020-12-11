@@ -21,7 +21,6 @@ namespace Attendance_Performance_Control.Controllers
     {
         public RecordsController(
             ApplicationDbContext context,
-            //ReadOnlyBigalconDbContext contextBigalcon,
             UserManager<ApplicationUser> userManager) : base(context, userManager)
         {
         }

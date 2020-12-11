@@ -15,16 +15,13 @@ namespace Attendance_Performance_Control.Controllers
     {
 
         protected readonly ApplicationDbContext _context;
-        protected readonly ReadOnlyBigalconDbContext _contextBigalcon;
         protected readonly UserManager<ApplicationUser> _userManager;
 
         public BaseController(
             ApplicationDbContext context,
-            //ReadOnlyBigalconDbContext contextBigalcon,
         UserManager<ApplicationUser> userManager)
         {
             _context = context;
-            //_contextBigalcon = contextBigalcon;
             _userManager = userManager;
         }
 

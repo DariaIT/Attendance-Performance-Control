@@ -18,13 +18,12 @@ using Microsoft.Extensions.Hosting;
 using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace Attendance_Performance_Control
 {
     public class Startup
     {
-        //Declare secret variables from "secret.json"
+        //Declare secret variables from "appsettings.json"
         private string _adminEmail = null;
         private string _adminPass = null;
 
@@ -83,21 +82,6 @@ namespace Attendance_Performance_Control
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            //Bigalcon DbContext
-            //services.AddDbContextPool<ReadOnlyBigalconDbContext>(options =>
-            //    options.UseMySql(
-            //        Configuration.GetConnectionString("MySQLConnection")));
-
-            // BigAlcon MySQL Connection
-            //services.AddDbContextPool<ReadOnlyBigalconDbContext>(
-            //    dbContextOptions =>
-            //    dbContextOptions.UseMySql(
-            //            // Replace with your connection string.
-            //            Configuration.GetConnectionString("MySQLConnection")));
-            //            // Replace with your server version and type.
-            //            //mySqlOptions => mySqlOptions
-            //            //    .ServerVersion(new Version(5, 5, 41), ServerType.MySql)
-            //            //    .CharSetBehavior(CharSetBehavior.NeverAppend)));
 
             services.AddDefaultIdentity<ApplicationUser>(options =>
                     options.SignIn.RequireConfirmedAccount = true)
