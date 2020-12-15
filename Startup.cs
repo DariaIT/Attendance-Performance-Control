@@ -18,6 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Attendance_Performance_Control.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
+using Microsoft.Extensions.Localization;
 
 namespace Attendance_Performance_Control
 {
@@ -41,41 +42,43 @@ namespace Attendance_Performance_Control
             _adminEmail = Configuration["Attendence-Control:AdminEmail"];
             _adminPass = Configuration["Attendence-Control:AdminPass"];
 
-
             // Add default portuguese culture
             services.Configure<RequestLocalizationOptions>(options =>
             {
-                options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("pt-PT");
+                options.DefaultRequestCulture = new RequestCulture("pt", "pt");
                 //By default the below will be set HTTP Request Header to whatever the server culture is.
                 // Force to have default culture everywhere
-                options.SupportedCultures = new List<CultureInfo> {new CultureInfo("pt-PT")};
+                options.SupportedCultures = new List<CultureInfo> {new CultureInfo("pt")};
                 // Remove all Culture Providers from pipeline, to cleaner and lighter code,
                 // we don't need them in current project
                 options.RequestCultureProviders = new List<IRequestCultureProvider>();
             });
 
-            services.AddMvc(options =>
-            {
-                options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(x => $"O valor '{x}' não é válido.");
-                options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
-                    $"O valor {x} deve ser o número.");
-                options.ModelBindingMessageProvider.SetMissingBindRequiredValueAccessor(x =>
-                    $"O valor para '{x}' deve ser fornecido");
-                options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((x, y) =>
-                    $"O valor '{x}' não é válido para {y}.");
-                options.ModelBindingMessageProvider.SetMissingKeyOrValueAccessor(() => "O valor é obrigatório.");
-                options.ModelBindingMessageProvider.SetUnknownValueIsInvalidAccessor(x =>
-                    $"O valor fornecido não é válido para {x}.");
-                options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x => $"O valor '{x}' não é válido.");
-                options.ModelBindingMessageProvider.SetMissingRequestBodyRequiredValueAccessor(() =>
-                    "O valor não pode ser nulo");
-                options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(x =>
-                    $"O valor '{x}' não é válido.");
-                options.ModelBindingMessageProvider.SetNonPropertyUnknownValueIsInvalidAccessor(() =>
-                    "O valor fornecido não é válido.");
-                options.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
-                    "O valor deve ser o número.");
-            });
+            services.AddMvc();
+
+            //services.AddMvc(options =>
+            //{
+            //    options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(x => $"O valor '{x}' não é válido.");
+            //    options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
+            //        $"O valor {x} deve ser o número.");
+            //    options.ModelBindingMessageProvider.SetMissingBindRequiredValueAccessor(x =>
+            //        $"O valor para '{x}' deve ser fornecido");
+            //    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((x, y) =>
+            //        $"O valor '{x}' não é válido para {y}.");
+            //    options.ModelBindingMessageProvider.SetMissingKeyOrValueAccessor(() => "O valor é obrigatório.");
+            //    options.ModelBindingMessageProvider.SetUnknownValueIsInvalidAccessor(x =>
+            //        $"O valor fornecido não é válido para {x}.");
+            //    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x => $"O valor '{x}' não é válido.");
+            //    options.ModelBindingMessageProvider.SetMissingRequestBodyRequiredValueAccessor(() =>
+            //        "O valor não pode ser nulo");
+            //    options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor(x =>
+            //        $"O valor '{x}' não é válido.");
+            //    options.ModelBindingMessageProvider.SetNonPropertyUnknownValueIsInvalidAccessor(() =>
+            //        "O valor fornecido não é válido.");
+            //    options.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
+            //        "O valor deve ser o número.");
+            //});
+
 
             //Application DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -102,7 +105,7 @@ namespace Attendance_Performance_Control
             //});
 
             services.AddControllersWithViews();
-            //override identity errors
+
             services.AddRazorPages();
 
 
@@ -172,7 +175,17 @@ namespace Attendance_Performance_Control
             }
 
             // Call to set default culture - PT
-            app.UseRequestLocalization();
+            //app.UseRequestLocalization();
+            app.UseRequestLocalization(new RequestLocalizationOptions()
+            {
+            DefaultRequestCulture = new RequestCulture("pt", "pt"),
+            //By default the below will be set HTTP Request Header to whatever the server culture is.
+            // Force to have default culture everywhere
+            SupportedCultures = new List<CultureInfo> { new CultureInfo("pt") },
+            // Remove all Culture Providers from pipeline, to cleaner and lighter code,
+            // we don't need them in current project
+            RequestCultureProviders = new List<IRequestCultureProvider>()
+        });
 
             app.UseHttpsRedirection();
 
@@ -191,14 +204,6 @@ namespace Attendance_Performance_Control
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-
-
-            // migrate any database changes on startup (includes initial db creation)
-            //using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            //{
-            //    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
-            //    context.Database.Migrate();
-            //}
 
             // Function that create user and add it to Admin Role
             CreateRoles(serviceProvider);

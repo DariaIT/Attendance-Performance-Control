@@ -20,6 +20,8 @@ namespace Attendance_Performance_Control.Data
         public DbSet<IntervalRecord> IntervalRecords { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Occupation> Occupations { get; set; }
+        public DbSet<Result> Results { get; set; }
+        public DbSet<ResultType> ResultTypes { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,12 +29,13 @@ namespace Attendance_Performance_Control.Data
 
             base.OnModelCreating(modelBuilder);
 
+
             //Department 1
             modelBuilder.Entity<Department>().HasData(
                 new Department
                 {
                     Id = 1,
-                    DepartmentName = "Dep. SO",
+                    DepartmentName = "Dep. SO"
                 }
             );
 
@@ -49,7 +52,7 @@ namespace Attendance_Performance_Control.Data
                new Department
                {
                    Id = 2,
-                   DepartmentName = "Dep. Formação",
+                   DepartmentName = "Dep. Formação"
                }
            );
 
@@ -63,7 +66,7 @@ namespace Attendance_Performance_Control.Data
                 new Department
                 {
                     Id = 3,
-                    DepartmentName = "Dep. Admin",
+                    DepartmentName = "Dep. Admin"
                 }
             );
 
@@ -80,7 +83,7 @@ namespace Attendance_Performance_Control.Data
                new Department
                {
                    Id = 4,
-                   DepartmentName = "Dep. Comercial",
+                   DepartmentName = "Dep. Comercial"
                }
            );
 
@@ -93,13 +96,34 @@ namespace Attendance_Performance_Control.Data
                 new Department
                 {
                     Id = 5,
-                    DepartmentName = "Dep. HST",
+                    DepartmentName = "Dep. HST"
                 }
             );
 
             modelBuilder.Entity<Occupation>().HasData(
                new Occupation { Id = 11, OccupationName = "TSST", DepartmentId = 5 }
            );
+
+
+            //create Results Types
+
+            modelBuilder.Entity<ResultType>().HasData(
+                new ResultType
+                {
+                    Id = 1,
+                    ResultTypeName = "Auditoria"
+                },
+                new ResultType
+                {
+                    Id = 2,
+                    ResultTypeName = "Consulta"
+                },
+                new ResultType
+                {
+                    Id = 3,
+                    ResultTypeName = "Relatório"
+                }
+                );
 
         }
     }

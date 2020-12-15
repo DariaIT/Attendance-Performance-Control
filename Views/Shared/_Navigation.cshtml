@@ -15,8 +15,8 @@
             </li>
             <!--Temporary disable Main Page quick access -->
             @*<li class="@Html.IsSelected(controller: "Home", action: "Index")">
-                <a href="@Url.Action("Index", "Home")"><i class="fa fa-border-all"></i> <span class="nav-label">Painel do Controlo</span> <span class="label label-primary float-right">Início</span></a>
-            </li>*@
+            <a href="@Url.Action("Index", "Home")"><i class="fa fa-border-all"></i> <span class="nav-label">Painel do Controlo</span> <span class="label label-primary float-right">Início</span></a>
+        </li>*@
 
             <!--Show just for Admin-->
             @if (@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)
@@ -35,8 +35,19 @@
                     {
                         <li class="@Html.IsSelected(action: "Index", controller: "Records")"><a href="@Url.Action("Index", "Records")">Registos</a></li>
                     }
-                        <li class="@Html.IsSelected(action: "Index", controller: "Reports")"><a href="@Url.Action("Index", "Reports")">Relatorios</a></li>
-                    </ul>
+                    <li class="@Html.IsSelected(action: "Index", controller: "Reports")"><a href="@Url.Action("Index", "Reports")">Relatorios</a></li>
+                </ul>
+            </li>
+
+            <li class="@Html.IsSelected(controller: "Results", action: "Index")">
+                <a href="#"><i class="fa fa-book-open"></i> <span class="nav-label">Resultados</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level @Html.IsSelected(action: "Index", controller: "Results", cssClass: "collapse in") @Html.IsSelected(action: "Create", controller: "Results", cssClass: "collapse in")">
+                    @if (!@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)
+                    {
+                        <li class="@Html.IsSelected(action: "Create", controller: "Results")"><a href="@Url.Action("Create", "Results")">Registar</a></li>
+                    }
+                    <li class="@Html.IsSelected(action: "Index", controller: "Results")"><a href="@Url.Action("Index", "Results")">Relatorios</a></li>
+                </ul>
             </li>
 
         </ul>

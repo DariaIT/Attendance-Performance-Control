@@ -1,0 +1,58 @@
+﻿@model Attendance_Performance_Control.Models.ResultRegistrationViewModel
+
+@{
+    ViewData["Title"] = "Registar Novo Resultado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!--Show errors on fail or success-->
+@{
+    if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Success"]
+        </div>
+    }
+    if (TempData["Failure"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            @TempData["Failure"]
+        </div>
+    }
+}
+<!--End Show errors on fail or success-->
+
+<h2 class="text-center">Registar Novo Resultado</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4 offset-md-4 p-2 animate__animated animate__fadeIn">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Number" class="control-label"></label>
+                <input asp-for="Number" class="form-control" />
+                <span asp-validation-for="Number" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ResultTypeId" class="control-label"></label>
+                <select asp-for="ResultTypeId" class="form-control" asp-items="ViewBag.ResultTypeId"></select>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Registar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
