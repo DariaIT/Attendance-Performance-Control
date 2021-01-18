@@ -2,6 +2,113 @@
     ViewData["Title"] = "Painel do Controlo";
 }
 
-<div class="text-center">
-   
+@if (!(bool)@ViewData["IsInRoleAdmin"])
+{
+    <div class="row">
+        <div class="col-md-6">
+            <!--Livro de Ponto - Registar-->
+            <div class="card text-center mb-3">
+                <div class="card-header">
+                    <h3>LIVRO DE PONTO - REGISTAR</h3>
+                </div>
+                <div class="card-body">
+                    <i class="fa fa-book-open fa-4x icone m-2"></i>
+                    <h5 class="card-title">Registar a hora do início e do fim de trabalho.</h5>
+                    <a href="@Url.Action("Index", "Records")" class="btn btn-primary">Registar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!--Resultados - Registar-->
+            <div class="card text-center mb-3">
+                <div class="card-header">
+                    <h3>RESULTADOS - REGISTAR</h3>
+                </div>
+                <div class="card-body">
+                    <i class="fa fa-poll fa-4x icone m-2"></i>
+                    <h5 class="card-title">Registar Auditorias, Consultas ou Relatórios.</h5>
+                    <a href="@Url.Action("Create", "Results")" class="btn btn-primary">Registar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-6">
+        <!--Livro de Ponto - Relatorios-->
+        <div class="card text-center mb-3">
+            <div class="card-header">
+                <h3>LIVRO DE PONTO - RELATORIOS</h3>
+            </div>
+            <div class="card-body">
+                <i class="fa fa-chart-line fa-4x icone m-2"></i>
+                <h5 class="card-title">Consultar os Relatórios de Livro de Ponto.</h5>
+                <a href="@Url.Action("Index", "Reports")" class="btn btn-primary">Consultar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <!--Resultados - Relatorios-->
+        <div class="card text-center mb-3">
+            <div class="card-header">
+                <h3>RESULTADOS - RELATORIOS</h3>
+            </div>
+            <div class="card-body">
+                <i class="fa fa-chart-bar fa-4x icone m-2"></i>
+                <h5 class="card-title">Consultar os Relatórios dos Resultados.</h5>
+                <a href="@Url.Action("Index", "Results")" class="btn btn-primary">Consultar</a>
+            </div>
+        </div>
+    </div>
 </div>
+@if (!(bool)@ViewData["IsInRoleAdmin"])
+{
+    <div class="row">
+        <div class="col-md-6">
+            <!--Ferias-->
+            <div class="card text-center mb-3">
+                <div class="card-header">
+                    <h3>FÉRIAS</h3>
+                </div>
+                <div class="card-body">
+                    <i class="fa fa-calendar-check fa-4x icone m-2"></i>
+                    <h5 class="card-title">Registar as Férias.</h5>
+                    <a href="@Url.Action("Index", "UserHolidays")" class="btn btn-primary">Registar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+        </div>
+    </div>
+}
+@if ((bool)@ViewData["IsInRoleAdmin"])
+{
+    <div class="row">
+        <div class="col-md-6">
+            <!--Utilizadores-->
+            <div class="card text-center mb-3">
+                <div class="card-header">
+                    <h3>UTILIZADORES</h3>
+                </div>
+                <div class="card-body">
+                    <i class="fa fa-calendar-check fa-4x icone m-2"></i>
+                    <h5 class="card-title">Gerir os Utilizadores.</h5>
+                    <a href="@Url.Action("Index", "Users")" class="btn btn-primary">Gerir</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!--Feriados-->
+            <div class="card text-center mb-3">
+                <div class="card-header">
+                    <h3>FERIADOS</h3>
+                </div>
+                <div class="card-body">
+                    <i class="fa fa-calendar-check fa-4x icone m-2"></i>
+                    <h5 class="card-title">Gerir os Feriados.</h5>
+                    <a href="@Url.Action("Index", "BankHolidays")" class="btn btn-primary">Gerir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

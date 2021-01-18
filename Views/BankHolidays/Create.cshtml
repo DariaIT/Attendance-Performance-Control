@@ -1,0 +1,58 @@
+﻿@model Attendance_Performance_Control.Models.BankHoliday
+
+@{
+    ViewData["Title"] = "Adicionar Novo Feriado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-md-3 pt-3">
+        <div>
+            <a class="icone pt-5 pl-3" title="Voltar" asp-action="Index">
+                <i class="fa fa-2x fa-arrow-circle-left"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2 class="text-center pt-2">@ViewData["Title"]</h2>
+        <hr />
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Data" class="control-label required"></label>
+                <div class="input-group date" id="dateHolydayPicker" data-target-input="nearest">
+                    <input type="text" asp-for="Data" placeholder="ex. 26/10/2021" class="form-control datetimepicker-input" data-target="#dateHolydayPicker" />
+                    <div class="input-group-append" data-target="#dateHolydayPicker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar-alt"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="BankHolidaysTypeId" class="control-label required"></label>
+                <select asp-for="BankHolidaysTypeId" class="form-control" asp-items="ViewBag.BankHolidaysTypeId"></select>
+            </div>
+            <div class="form-group text-center">
+                <input type="submit" value="Adicionar" class="btn btn-primary" />
+                <a class="btn btn-primary ml-3" title="Voltar" asp-action="Index">Voltar</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        $(function () {
+            $('#dateHolydayPicker').datetimepicker({
+                format: 'L',
+                locale: 'pt'
+            });
+        });
+
+    </script>
+}

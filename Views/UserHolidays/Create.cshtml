@@ -1,0 +1,99 @@
+﻿@model Attendance_Performance_Control.Models.UserHoliday
+
+@{
+    ViewData["Title"] = "Adicionar Férias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-3 pt-3">
+        <div>
+            <a class="icone pt-5 pl-3" title="Voltar" asp-action="Index">
+                <i class="fa fa-2x fa-arrow-circle-left"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 text-center">
+        <h2 class="text-center pt-2">@ViewData["Title"]</h2>
+        <hr />
+        <form id="dateRangePicker" asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group d-inline-flex flex-nowrap">
+                <input id="bootstrap_daterange_calendar" type="text" name="dateRangeSearch" class="form-control" />
+                <label for="bootstrap_daterange_calendar">
+                    <i class="fa fa-calendar-alt fa-2x pl-1 pt-1 icone"></i>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Adicionar" class="btn btn-primary" />
+                <a class="btn btn-primary ml-3" title="Voltar" asp-action="Index">Voltar</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            //Initialize portuguese date translation
+            moment.locale('pt');
+
+            //bootstrap-daterange picker
+            $('input[name="dateRangeSearch"]').daterangepicker({
+                autoApply: true,
+                showCustomRangeLabel: false,
+                "alwaysShowCalendars": true,
+                //"startDate": moment().startOf('month'),
+                //"endDate": moment().endOf('month'),
+                //"ranges": {
+                //    'Hoje': [moment(), moment()],
+                //    'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                //    'Esta semana': [moment().startOf('week'), moment().endOf('week')],
+                //    'Semana passada': [moment().startOf('week').subtract(1, 'week'), moment().endOf('week').subtract(1, 'week')],
+                //    'Este mês': [moment().startOf('month'), moment().endOf('month')],
+                //    'Mês passado': [moment().startOf('month').subtract(1, 'month'), moment().endOf('month').subtract(1, 'month')],
+                //    'Este ano': [moment().startOf('year'), moment().endOf('year')],
+                //    'Ano passado': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')]
+                //},
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "daysOfWeek": [
+                        "Dom",
+                        "Seg",
+                        "Ter",
+                        "Qua",
+                        "Qui",
+                        "Sex",
+                        "Sáb"
+                    ],
+                    "monthNames": [
+                        "Janeiro",
+                        "Fevereiro",
+                        "Março",
+                        "Abril",
+                        "Posso",
+                        "Junho",
+                        "Julho",
+                        "Agosto",
+                        "Setembro",
+                        "Outubro",
+                        "Novembro",
+                        "Dezembro"
+                    ],
+                    "firstDay": 1
+                },
+            }, function (start, end, label) {
+
+            });
+
+        });
+    </script>
+}

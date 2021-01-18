@@ -14,7 +14,7 @@ namespace Attendance_Performance_Control.Models
         [Display(Name = "Data")]
         public DateTime Data { get; set; }
 
-        [Display(Name = "Dep-to")]
+        [Display(Name = "Departamento")]
         public string UserDepartment { get; set; }
 
         [Display(Name = "Cargo")]
@@ -39,5 +39,19 @@ namespace Attendance_Performance_Control.Models
 
         [Display(Name = "Total de Intervalo (h)")]
         public string TotalHoursForIntervals { get; set; }
+
+        [Display(Name = "Nome")]
+        public string User { get; set; }
+
+        //Insert here the int of day tipe, to show in table and reports:
+        //1 - Ferias
+        //2 - Fim-de-Semana
+        //3 - Feriado
+        //4 - Working Day
+
+        public int ReportDayType { get; set; }
+
+        public string IsBankHolydaysName { get; set; }
+
     }
 }

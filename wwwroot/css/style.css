@@ -4921,7 +4921,7 @@ code {
   border-width: 1px;
   color: inherit;
   margin-bottom: 0;
-  padding: 15px 90px 8px 15px;
+  padding: 15px 15px 8px 15px;
   min-height: 48px;
   position: relative;
   clear: both;
@@ -5159,9 +5159,9 @@ table.table-mail tr td {
 .text-primary {
   color: inherit !important;
 }
-.text-success {
+/*.text-success {
   color: #1c84c6 !important;
-}
+}*/
 .text-info {
   color: #23c6c8 !important;
 }

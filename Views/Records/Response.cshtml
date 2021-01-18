@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewData["Title"] = "Registo";
+}
+
+<div class="row">
+    <div>
+        <a class="icone pt-3 pl-3" title="Voltar" asp-action="Index">
+            <i class="fa fa-2x fa-arrow-circle-left"></i>
+        </a>
+    </div>
+    <div class="col-md-4 offset-md-4 p-5 mt-5">
+        @if (TempData["Success"] != null)
+        {
+            <h2 class="text-center text-success">@TempData["Success"]</h2>
+        }
+        else
+        {
+            <h2 class="text-center text-danger">@TempData["Failure"]</h2>
+        }
+        <div class="pt-3 text-center">
+            <a class="btn btn-primary" title="Voltar" asp-action="Index">
+                Voltar
+            </a>
+        </div>
+    </div>
+</div>
+

@@ -119,6 +119,10 @@
     {
       "library": "datatables.net-buttons-dt@1.6.4",
       "destination": "wwwroot/lib/datatables.net-buttons-dt/"
+    },
+    {
+      "library": "chartjs-plugin-annotation@0.5.7",
+      "destination": "wwwroot/lib/chartjs-plugin-annotation/"
     }
   ]
 }

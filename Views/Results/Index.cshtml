@@ -27,16 +27,144 @@
     }
 }
 <!--End Show errors on fail or success-->
+<div class="p-2 animate__animated animate__fadeIn">
 
-<table id="ResultsTable" class="table table-striped table-bordered dt-responsive table-hover" width="100%" cellspacing="0">
+    <form id="dateRangePicker" asp-action="Index" method="post">
+        <div class="row">
+            <!--Filter by Date - submit by jquery function-->
+            <div class="col-6 col-md-3">
+                <div class="input-group">
+                    <input id="bootstrap_daterange_calendar" type="text" name="dateRangeSearch" class="form-control" value="@ViewData["dateRangeSearch"]" />
+                    <div class="input-group-append pt-1">
+                        <label for="bootstrap_daterange_calendar">
+                            <i class="fa fa-calendar-alt fa-2x pl-1 icone"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!--End Filter by Date-->
+            @if ((bool)ViewData["IsAdmin"])
+            {
+                <!--Filter by User Id-Name-->
+                <div class="col-6 col-md-3">
+                    <div class="input-group">
+                        <select id="searchByUser" name="searchByUser" value="@ViewData["searchByUser"]" class="form-control" asp-items="@ViewData["Users"] as SelectList">
+                            <option value="@String.Empty">Todos</option>
+                        </select>
+                        <div class="input-group-append">
+                            <label for="searchByUser">
+                                <i class="fa fa-user fa-2x pl-1 pt-1 icone"></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!--End Filter by User Id-Name-->
+            <!--Filter by Result Type-->
+            <div class="col-6 col-md-3">
+                <div class="input-group">
+                    <select id="searchByResultType" name="searchByResultType" value="@ViewData["searchByResultType"]" class="form-control" asp-items="@ViewData["ResultTypes"] as SelectList">
+                        <option value="@String.Empty">Todos</option>
+                    </select>
+                    <div class="input-group-append">
+                        <label for="searchByResultType">
+                            <i class="fa fa-file-medical fa-2x pl-1 pt-1 icone"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!--End Filter by Result Type-->
+
+            <div class="col-6 col-md-3">
+                <input type="submit" value="Filtrar" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
+</div>
+<!--Bar Chart-->
+<div class="col-12">
+    <div class="ibox">
+        <div class="ibox-title">
+            <div class="text-center text-success border border-success mb-2 p-2">
+                <h3>Registos Minimos Por Dia do Trabalho:</h3>
+                <h5 class="pr-3">Auditorias - 2</h5>
+                <h5 class="pr-3">Relatórios - 2</h5>
+                <h5>Consultas - 30</h5>
+            </div>
+            <!--Show in green or red color depend on minimum registration values-->
+            <!--2/day for Auditorias and Relatorios; 30 for Consultas-->
+            <!--show if user is not null-->
+            @if ((bool)@ViewData["IsSingleUser"])
+            {
+                <h5 class="pr-3">Dias Úteis: @ViewData["NumberOfWorkingDaysInPeriodOfTime"] </h5>
+                <h5 class="pr-3">Dias de Férias: @ViewData["NumberOfUserHolidayDaysInPeriodOfTime"] </h5>
+                <h5 class="pr-3">Dias Previstos de Trabalho: @ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] </h5>
+                <h5 class="pr-3">Dias Registados: @ViewData["RegistedDaysForPeriodOfTime"] </h5>
+                <br />
+                if ((int)@ViewData["TotalAuditorias"] != 0)
+                {
+                    var auditoriasPrevistas = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * 2;
+                    <h5 class="pr-3">Auditorias Previstas: @auditoriasPrevistas </h5>
+                    <h5 class="pr-3">Auditorias Registadas: @ViewData["TotalAuditorias"] </h5>
+
+                    var diferencaAuditorias = (int)@ViewData["TotalAuditorias"] - @auditoriasPrevistas;
+                    var diferenceAuditoriasClass = @diferencaAuditorias >= 0 ? "text-success" : "text-danger";
+                    <h5 class="pr-3 @diferenceAuditoriasClass">Diferença: @diferencaAuditorias </h5>
+                    <br />
+                }
+                if ((int)@ViewData["TotalConsultas"] != 0)
+                {
+                    var consultasPrevistas = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * 30;
+                    <h5 class="pr-3">Consultas Previstas: @consultasPrevistas </h5>
+                    <h5 class="pr-3">Consultas Registadas: @ViewData["TotalConsultas"] </h5>
+
+
+                    var diferencaConsultas = (int)@ViewData["TotalConsultas"] - @consultasPrevistas;
+                    var diferenceConsultasClass = @diferencaConsultas >= 0 ? "text-success" : "text-danger";
+                    <h5 class="pr-3 @diferenceConsultasClass">Diferença: @diferencaConsultas </h5>
+                    <br />
+                }
+                if ((int)@ViewData["TotalRelatorios"] != 0)
+                {
+                    var relatoriosPrevistos = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * 2;
+                    <h5 class="pr-3">Relatórios Previstos: @relatoriosPrevistos </h5>
+                    <h5 class="pr-3">Relatórios Registados: @ViewData["TotalRelatorios"] </h5>
+
+                    var diferencaRelatorios = (int)@ViewData["TotalRelatorios"] - @relatoriosPrevistos;
+                    var diferenceRelatorioClass = @diferencaRelatorios >= 0 ? "text-success" : "text-danger";
+                    <h5 class="pr-3 @diferenceRelatorioClass">Diferença: @diferencaRelatorios </h5>
+                    <br />
+                }
+            }
+            else
+            {
+                <h5 class="pr-3">Total Auditorias: @ViewData["TotalAuditorias"] </h5>
+                <h5 class="pr-3">Total Consultas: @ViewData["TotalConsultas"] </h5>
+                <h5 class="pr-3">Total Relatórios: @ViewData["TotalRelatorios"] </h5>
+            }
+
+
+        </div>
+        <div class="ibox-content">
+            <div>
+                <canvas id="ResultsChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End Bar Chart-->
+<!--Start Results Table-->
+<table id="ResultsTable" class="table table-striped table-bordered dt-responsive table-hover animate__animated animate__fadeIn" width="100%" cellspacing="0">
     <thead class="thead-light">
         <tr>
             <th>
                 Data
             </th>
+
             <th>
                 Nome
             </th>
+
             <th>
                 Tipo
             </th>
@@ -49,7 +177,18 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+            //set line color depend on minimum value
+            // 1 -> Auditorias, 2 -> Consultas, 3 -> Relatorios
+            var rowStyle = "";
+            if (item.Type.Id == 1 || item.Type.Id == 3)
+            {
+                rowStyle = item.NumberOfResults >= 2 ? "table-success" : "table-danger";
+            }
+            if (item.Type.Id == 2)
+            {
+                rowStyle = item.NumberOfResults >= 30 ? "table-success" : "table-danger";
+            }
+            <tr class="@rowStyle">
                 <td>
                     @item.Data.ToShortDateString()
                 </td>
@@ -62,7 +201,8 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.NumberOfResults)
                 </td>
-                <td class="d-inline-flex flex-nowrap">
+
+                <td >
                     <a class="icone" title="Editar" asp-action="Edit" asp-route-id="@item.Id">
                         <i style="font-size:16px" class="fa fa-cog"></i>
                     </a>
@@ -75,6 +215,8 @@
     </tbody>
 </table>
 
+<!--End Results Table-->
+
 @section Scripts {
     <script type="text/javascript">
 
@@ -83,7 +225,60 @@
             //Initialize portuguese date translation
             moment.locale('pt');
 
+            //bootstrap-daterange picker
+            $('input[name="dateRangeSearch"]').daterangepicker({
+                autoApply: true,
+                showCustomRangeLabel: false,
+                "alwaysShowCalendars": true,
+                //"startDate": moment().startOf('month'),
+                //"endDate": moment().endOf('month'),
+                "ranges": {
+                    'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Esta semana': [moment().startOf('week'), moment().endOf('week')],
+                    'Semana passada': [moment().startOf('week').subtract(1, 'week'), moment().endOf('week').subtract(1, 'week')],
+                    'Este mês': [moment().startOf('month'), moment().endOf('month')],
+                    'Mês passado': [moment().startOf('month').subtract(1, 'month'), moment().endOf('month').subtract(1, 'month')],
+                    'Este ano': [moment().startOf('year'), moment().endOf('year')],
+                    'Ano passado': [moment().startOf('year').subtract(1, 'year'), moment().endOf('year').subtract(1, 'year')]
+                },
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "separator": " - ",
+                    "daysOfWeek": [
+                        "Dom",
+                        "Seg",
+                        "Ter",
+                        "Qua",
+                        "Qui",
+                        "Sex",
+                        "Sáb"
+                    ],
+                    "monthNames": [
+                        "Janeiro",
+                        "Fevereiro",
+                        "Março",
+                        "Abril",
+                        "Posso",
+                        "Junho",
+                        "Julho",
+                        "Agosto",
+                        "Setembro",
+                        "Outubro",
+                        "Novembro",
+                        "Dezembro"
+                    ],
+                    "firstDay": 1
+                },
+            }, function (start, end, label) {
+
+            });
+
+            //sorting date of column 1
+            //extention of moment.js for DataTable
+            $.fn.dataTable.moment('DD/MM/YYYY');
+
             $('#ResultsTable').DataTable({
+                "order": [[0, "desc"]],
                 "columnDefs": [{
                     "targets": 4,
                     "orderable": false
@@ -98,6 +293,85 @@
                     "infoFiltered": "(filtrado de _MAX_ regitros totais)"
                 }
             });
+
+            //bar chart
+
+            var graficUnit = @ViewData["GraficDays"] < 62 ? 'day' : 'month';
+            var dataJsonAuditorias = @Html.Raw(@ViewData["JsonDataForGraficAuditorias"]);
+            var dataJsonConsultas = @Html.Raw(@ViewData["JsonDataForGraficConsultas"]);
+            var dataJsonRelatorios = @Html.Raw(@ViewData["JsonDataForGraficRelatorios"]);
+            var barData = {
+            //labels: ["19/12/2020", "20/12/2020", "21/12/2020", "22/12/2020"],
+            datasets: [
+                {
+                    label: "Auditorias",
+                    backgroundColor: 'rgba(26,179,148,0.5)',
+                    borderColor: "rgba(26,179,148,0.7)",
+                    pointBackgroundColor: "rgba(26,179,148,1)",
+                    pointBorderColor: "#fff",
+                    //data: [2, 3, 4, 5]
+                    data: dataJsonAuditorias
+                    //data: [{ x: '21/12/2020', y: 1 }, { x: '22/12/2020', y: 10 }]
+                    },
+                    {
+                        label: "Consultas",
+                        backgroundColor: 'rgba(126,179,148,0.5)',
+                        borderColor: "rgba(126,179,148,0.7)",
+                        pointBackgroundColor: "rgba(126,179,148,1)",
+                        pointBorderColor: "#fff",
+                        data: dataJsonConsultas
+                    },
+                    {
+                        label: "Relatórios",
+                        backgroundColor: 'rgba(226,179,148,0.5)',
+                        borderColor: "rgba(226,179,148,0.7)",
+                        pointBackgroundColor: "rgba(226,179,148,1)",
+                        pointBorderColor: "#fff",
+                        data: dataJsonRelatorios
+                    }
+            ]
+        };
+
+        var barOptions = {
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    offset: true,
+                    time: {
+                        unit: graficUnit,
+                        tooltipFormat: "ddd, DD MMM YYYY",
+                        format: "DD/MM/YYYY", //format for json date 31/01/2020
+                        displayFormats: {
+                            day: "ddd, DD MMM", //format for X Axis
+                            month: 'MMM YYYY'
+                        }
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        callback: function (label, index, labels) {
+                            //return label + "h";
+                            return label;
+                        }
+                    },
+                }]
+            }
+            //tooltips: {
+            //    callbacks: {
+            //        label: (tooltipItem, data) => {
+            //            var value = tooltipItem.yLabel;
+            //            return dateFormatYAxisTooltip(value);
+            //        }
+            //    }
+            //},
+        };
+
+        var ctx2 = document.getElementById("ResultsChart").getContext("2d");
+        new Chart(ctx2, { type: 'bar', data: barData, options: barOptions });
+
+
         });
 
     </script>

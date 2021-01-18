@@ -22,6 +22,10 @@ namespace Attendance_Performance_Control.Data
         public DbSet<Occupation> Occupations { get; set; }
         public DbSet<Result> Results { get; set; }
         public DbSet<ResultType> ResultTypes { get; set; }
+        public DbSet<BankHoliday> BankHolidays { get; set; }
+        public DbSet<BankHolidaysType> BankHolidaysType { get; set; }
+        public DbSet<UserHoliday> UserHolidays { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -122,6 +126,31 @@ namespace Attendance_Performance_Control.Data
                 {
                     Id = 3,
                     ResultTypeName = "Relatório"
+                }
+                );
+
+            //create Bank Holidays Types
+
+            modelBuilder.Entity<BankHolidaysType>().HasData(
+                new BankHolidaysType
+                {
+                    Id = 1,
+                    BankHolidayTypeName = "Feriado"
+                },
+                new BankHolidaysType
+                {
+                    Id = 2,
+                    BankHolidayTypeName = "Tolerância de Ponto"
+                },
+                new BankHolidaysType
+                {
+                    Id = 3,
+                    BankHolidayTypeName = "Confinamento Obrigatório"
+                },
+                new BankHolidaysType
+                {
+                    Id = 4,
+                    BankHolidayTypeName = "Confinamento Facultativo"
                 }
                 );
 

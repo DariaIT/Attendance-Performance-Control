@@ -84,8 +84,43 @@
 <div class="col-12">
     <div class="ibox ">
         <div class="ibox-title">
-            <h5 class="pr-3">Total Trabalho(h): @ViewData["TotalWork"] </h5>
-            <h5>Total Intervalos(h): @ViewData["TotalIntervals"]</h5>
+
+            <!--show if user is not null-->
+            @if ((bool)@ViewData["IsSingleUser"])
+            {
+                <h5 class="pr-3">Dias Úteis: @ViewData["NumberOfWorkingDaysInPeriodOfTime"] </h5>
+                <h5 class="pr-3">Dias de Férias: @ViewData["NumberOfUserHolidayDaysInPeriodOfTime"] </h5>
+                <h5 class="pr-3">Dias Previstos de Trabalho: @ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] </h5>
+                <h5 class="pr-3">Dias Registados: @ViewData["RegistedDaysForPeriodOfTime"] </h5>
+
+                var diferenceDaysClass = (int)@ViewData["DiferenceDays"] >= 0 ? "text-success" : "text-danger";
+
+                <h5 class="pr-3 @diferenceDaysClass">Diferença: @ViewData["DiferenceDays"] </h5>
+                <br />
+                <h5 class="pr-3">Horas Previstas de Trabalho: @ViewData["ExpectedNumberOfWorkingHours"] </h5>
+                <h5 class="pr-3">Horas Registadas: @ViewData["TotalWork"] </h5>
+
+                var diferenceHoursClass = (bool)@ViewData["isNegativeDiferenceWork"] == false ? "text-success" : "text-danger";
+
+                <h5 class="pr-3 @diferenceHoursClass">Diferença: @ViewData["DiferenceWorkHours"] </h5>
+                <br />
+                <h5 class="pr-3">Horas Previstas de Intervalo: @ViewData["ExpectedNumberOfIntervalHours"] </h5>
+                <h5 class="pr-3">Horas Registadas: @ViewData["TotalIntervals"]</h5>
+
+                var diferenceIntervalClass = (bool)@ViewData["isNegativeDiferenceInterval"] == false ? "text-success" : "text-danger";
+
+                <h5 class="pr-3 @diferenceIntervalClass">Diferença: @ViewData["DiferenceIntervalHours"] </h5>
+            }
+            else
+            {
+                //For all users in total - Admin View
+                <h5 class="pr-3">Dias Úteis: @ViewData["NumberOfWorkingDaysInPeriodOfTime"] </h5>
+                <br />
+                <h5 class="pr-3">Total Trabalho(h): @ViewData["TotalWork"] </h5>
+                <h5>Total Intervalos(h): @ViewData["TotalIntervals"]</h5>
+            }
+
+
         </div>
         <div class="ibox-content">
             <div>
@@ -106,7 +141,15 @@
                 @Html.DisplayNameFor(model => model.UserDepartment)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UserOccupation)
+                <!--show user name of report for Admin and Cargo for User-->
+                @if ((bool)ViewData["IsAdmin"])
+                {
+                    @Html.DisplayNameFor(model => model.User)
+                }
+                else
+                {
+                    @Html.DisplayNameFor(model => model.UserOccupation)
+                }
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DayStartTime)
@@ -130,43 +173,160 @@
             </th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="text-center">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Data)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserDepartment)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserOccupation)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DayStartTime)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDayDelayExplanation)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DayEndTime)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndDayDelayExplanation)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TotalHoursForIntervals)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TotalHoursForWork)
-                </td>
-                <td>
-                    <a class="btn p-0" title="Ver Detalhes" asp-controller="Reports" asp-action="DetailsRecord" asp-route-Id="@item.DayRecordsId" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-searchByUser="@ViewData["searchByUser"]" asp-route-searchByDept="@ViewData["searchByDept"]">
-                        <i style="font-size:16px" class="fa fa-info-circle icone"></i>
-                    </a>
-                </td>
-            </tr>
+            //User Holidays - Ferias
+            if (item.ReportDayType == 1)
+            {
+                <tr style="background-color: rgba(20,219,5,0.5)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Data)
+                    </td>
+                    <td colspan="9">
+                        <p>Dia de Férias</p>
+                    </td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                </tr>
+            }
+            //Weekend: Saturday, Sunday - Fim-de-semana
+            if (item.ReportDayType == 2)
+            {
+                <tr style="background-color: rgba(247,185,18,0.5)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Data)
+                    </td>
+                    <td colspan="9">
+                        <p>Fim-de-semana</p>
+                    </td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                </tr>
+            }
+            //Bank Holidays - Feriado
+            if (item.ReportDayType == 3)
+            {
+                <tr style="background-color: rgba(3,56,253,0.2)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Data)
+                    </td>
+                    <td colspan="9">
+                        <p>Feriado-@item.IsBankHolydaysName</p>
+                    </td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                    <td class="d-none"></td>
+                </tr>
+            }
+            //Complite and Incomplite Working Day
+            if (item.ReportDayType == 4 || item.ReportDayType == 5)
+            {
+                var lineStyleColor = item.ReportDayType == 4 ? "rgba(26,179,148,0.2)" : "rgba(191,16,16,0.2)";
+                <tr style="background-color:@lineStyleColor">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Data)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserDepartment)
+                    </td>
+                    <td>
+                        @if ((bool)ViewData["IsAdmin"])
+                        {
+                            @Html.DisplayFor(modelItem => item.User)
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.UserOccupation)
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DayStartTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDayDelayExplanation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DayEndTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndDayDelayExplanation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalHoursForIntervals)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalHoursForWork)
+                    </td>
+                    <td>
+                        <a class="btn p-0" title="Ver Detalhes" asp-controller="Reports" asp-action="DetailsRecord" asp-route-Id="@item.DayRecordsId" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-searchByUser="@ViewData["searchByUser"]" asp-route-searchByDept="@ViewData["searchByDept"]">
+                            <i style="font-size:16px" class="fa fa-info-circle icone"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+            //if user==null -> records for everybody
+            else if (item.ReportDayType == 0)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Data)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserDepartment)
+                    </td>
+                    <td>
+                        @if ((bool)ViewData["IsAdmin"])
+                        {
+                            @Html.DisplayFor(modelItem => item.User)
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.UserOccupation)
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DayStartTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDayDelayExplanation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DayEndTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndDayDelayExplanation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalHoursForIntervals)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalHoursForWork)
+                    </td>
+                    <td>
+                        <a class="btn p-0" title="Ver Detalhes" asp-controller="Reports" asp-action="DetailsRecord" asp-route-Id="@item.DayRecordsId" asp-route-dateRangeSearch="@ViewData["dateRangeSearch"]" asp-route-searchByUser="@ViewData["searchByUser"]" asp-route-searchByDept="@ViewData["searchByDept"]">
+                            <i style="font-size:16px" class="fa fa-info-circle icone"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
@@ -245,18 +405,56 @@
 
 
             var graficUnit = @ViewData["GraficDays"] < 62 ? 'day' : 'month';
-            var dataJson = @Html.Raw(@ViewData["JsonDataForGrafic"]);
+            var dataJsonComleteDays = @Html.Raw(@ViewData["JsonDataOfCompleteWorkDaysForGrafic"]);
+            var dataJsonIncompleteDays = @Html.Raw(@ViewData["JsonDataOfIncompleteWorkDaysForGrafic"]);
+            var dataJsonWeekends = @Html.Raw(@ViewData["JsonDataOfWeekendsDaysForGrafic"]);
+            var dataJsonBankHolidays = @Html.Raw(@ViewData["JsonDataOfBankHolidaysForGrafic"]);
+            var dataJsonUserHolidays = @Html.Raw(@ViewData["JsonDataOfUserHolidaysForGrafic"]);
+            var oficialWorkingHours = @Html.Raw(@ViewData["OficialWorkingHours"]);
+            var labelFontColorOpacity = '@Html.Raw(@ViewData["LabelFontColorOpacity"])';
             var barData = {
                 //labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
                 datasets: [
                     {
-                        label: "Horas",
+                        label: "Dias Completos",
                         backgroundColor: 'rgba(26,179,148,0.5)',
                         borderColor: "rgba(26,179,148,0.7)",
                         pointBackgroundColor: "rgba(26,179,148,1)",
                         pointBorderColor: "#fff",
                         //data: [2.30, 3.30, 4.30, 5.30, 6.30]
-                        data: dataJson
+                        data: dataJsonComleteDays
+                    },
+                    {
+                        label: "Dias Incompletos",
+                        backgroundColor: 'rgba(191,16,16,0.5)',
+                        borderColor: "rgba(191,16,16,0.7)",
+                        pointBackgroundColor: "rgba(191,16,16,1)",
+                        pointBorderColor: "#fff",
+                        data: dataJsonIncompleteDays
+                    },
+                    {
+                        label: "Fins-de-semana",
+                        backgroundColor: 'rgba(247,185,18,0.5)',
+                        borderColor: "rgba(247,185,18,0.7)",
+                        pointBackgroundColor: "rgba(247,185,18,1)",
+                        pointBorderColor: "#fff",
+                        data: dataJsonWeekends
+                    },
+                    {
+                        label: "Feriados",
+                        backgroundColor: 'rgba(3,56,253,0.5)',
+                        borderColor: "rgba(3,56,253,0.7)",
+                        pointBackgroundColor: "rgba(3,56,253,1)",
+                        pointBorderColor: "#fff",
+                        data: dataJsonBankHolidays
+                    },
+                    {
+                        label: "Férias",
+                        backgroundColor: 'rgba(20,219,5,0.5)',
+                        borderColor: "rgba(20,219,5,0.7)",
+                        pointBackgroundColor: "rgba(20,219,5,1)",
+                        pointBorderColor: "#fff",
+                        data: dataJsonUserHolidays
                     }
                 ]
             };
@@ -294,13 +492,39 @@
                         }
                     }
                 },
+                annotation: {
+                annotations: [{
+                    type: 'line',
+                    mode: 'horizontal',
+                    scaleID: 'y-axis-0',
+                    value: oficialWorkingHours,
+                    borderColor: 'rgba(191, 16, 16, 0.5)',
+                    borderWidth: 1,
+                    label: {
+                        content: "Horas Mínimas de Trabalho",
+                        position: 'center',
+                        enabled: true,
+                        backgroundColor: 'transparent',
+                        fontColor: labelFontColorOpacity,
+                        fontStyle: 'normal',
+                        yPadding: 0,
+                        yAdjust: -10,
+                    }
+                    }],
+
+                    drawTime: "beforeDatasetsDraw" // (default)
+                }
             };
 
             var ctx2 = document.getElementById("barChart").getContext("2d");
             new Chart(ctx2, { type: 'bar', data: barData, options: barOptions });
 
+            //sorting date of column 1
+            //extention of moment.js for DataTable
+            $.fn.dataTable.moment('DD/MM/YYYY');
 
             $('#ReportsTable').DataTable({
+                "order": [[0, "desc"]],
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ Registros por página",
                     "search": "Procurar",
@@ -318,7 +542,7 @@
                     }
                 },
                 "columnDefs": [{
-                    "targets": 9,
+                    "targets": [1,2,3,4,5,6,7,8,9],
                     "orderable": false
                 }],
                 dom: 'lBfrtip',
@@ -326,17 +550,34 @@
                     {
                     extend: 'pdf',
                     title: "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.",
-                    filename: "Relatorio-Previa-Safe",
-                    messageTop: function () {
+                        filename: "Relatorio-Previa-Safe",
+                        orientation: 'landscape', //portrait
+                        pageSize: 'A4', //A3 , A5 , A6 , legal , letter
+                        messageTop: function () {
                         var data = '@Html.Raw(ViewData["ReportData"])';
                         var name = '@Html.Raw(ViewData["ReportName"])';
                         var depart = '@Html.Raw(ViewData["ReportDepart"])';
                         var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var oficialWorkingDays = '@Html.Raw(ViewData["NumberOfWorkingDaysInPeriodOfTime"])';
+                        var totalRegistedDays = '@Html.Raw(ViewData["RegistedDaysForPeriodOfTime"])';
+                        var userHolidays = '@Html.Raw(ViewData["NumberOfUserHolidayDaysInPeriodOfTime"])';
+                        var expectedWorkingDays = '@Html.Raw(ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"])';
+                        var diferenceDays = '@Html.Raw(ViewData["DiferenceDays"])';
+                        var expectedWorkingHours = '@Html.Raw(ViewData["ExpectedNumberOfWorkingHours"])';
                         var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var diferenceWorkHours = '@Html.Raw(ViewData["DiferenceWorkHours"])';
+                        var expectedHoursInterval = '@Html.Raw(ViewData["ExpectedNumberOfIntervalHours"])';
                         var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                        var diferenceIntervalHours = '@Html.Raw(ViewData["DiferenceIntervalHours"])';
                         return 'Data: ' + data + '\n' + 'Nome: ' + name + '\n' + 'Departamento: ' + depart + '\n' +
-                             'Cargo: ' + occup + '\n' + 'Total Trabalho(h): ' + totalWork + '\n' +
-                             'Total Intervalos(h): ' + totalInterv + '\n';
+                            'Cargo: ' + occup + '\n' +
+                            'Dias Úteis: ' + oficialWorkingDays + '   Dias de Ferias: ' + userHolidays +
+                            '   Dias Previstos de Trabalho: ' + expectedWorkingDays + '   Dias Registados: ' + totalRegistedDays +
+                            '   Diferença: ' + diferenceDays + '\n' +
+                            'Horas Previstas de Trabalho: ' + expectedWorkingHours + '   Horas Registadas: ' + totalWork +
+                            '   Diferença: ' + diferenceWorkHours + '\n' +
+                            'Horas Previstas de Intervalo: ' + expectedHoursInterval + '   Horas Registadas: ' + totalInterv +
+                            '   Diferença: ' + diferenceIntervalHours + '\n';
                         }
                 }, {
                     extend: 'excel',
@@ -347,11 +588,26 @@
                         var name = '@Html.Raw(ViewData["ReportName"])';
                         var depart = '@Html.Raw(ViewData["ReportDepart"])';
                         var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var oficialWorkingDays = '@Html.Raw(ViewData["NumberOfWorkingDaysInPeriodOfTime"])';
+                        var totalRegistedDays = '@Html.Raw(ViewData["RegistedDaysForPeriodOfTime"])';
+                        var userHolidays = '@Html.Raw(ViewData["NumberOfUserHolidayDaysInPeriodOfTime"])';
+                        var expectedWorkingDays = '@Html.Raw(ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"])';
+                        var diferenceDays = '@Html.Raw(ViewData["DiferenceDays"])';
+                        var expectedWorkingHours = '@Html.Raw(ViewData["ExpectedNumberOfWorkingHours"])';
                         var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var diferenceWorkHours = '@Html.Raw(ViewData["DiferenceWorkHours"])';
+                        var expectedHoursInterval = '@Html.Raw(ViewData["ExpectedNumberOfIntervalHours"])';
                         var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                        var diferenceIntervalHours = '@Html.Raw(ViewData["DiferenceIntervalHours"])';
                         return 'Data: ' + data + ',  ' + 'Nome: ' + name + ',  ' + 'Departamento: ' + depart + ',  ' +
-                            'Cargo: ' + occup + ',  ' + 'Total Trabalho(h): ' + totalWork + ',  ' +
-                             'Total Intervalos(h): ' + totalInterv;
+                            'Cargo: ' + occup + ',  ' +
+                            'Dias Úteis: ' + oficialWorkingDays + '   Dias de Ferias: ' + userHolidays +
+                            '   Dias Previstos de Trabalho: ' + expectedWorkingDays + '   Dias Registados: ' + totalRegistedDays +
+                            '   Diferença: ' + diferenceDays + ',  ' +
+                            'Horas Previstas de Trabalho: ' + expectedWorkingHours + '   Horas Registadas: ' + totalWork +
+                            '   Diferença: ' + diferenceWorkHours + ',  ' +
+                            'Horas Previstas de Intervalo: ' + expectedHoursInterval + '   Horas Registadas: ' + totalInterv +
+                            '   Diferença: ' + diferenceIntervalHours;
                         }
                 },
                     {
@@ -364,11 +620,26 @@
                         var name = '@Html.Raw(ViewData["ReportName"])';
                         var depart = '@Html.Raw(ViewData["ReportDepart"])';
                         var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var oficialWorkingDays = '@Html.Raw(ViewData["NumberOfWorkingDaysInPeriodOfTime"])';
+                        var totalRegistedDays = '@Html.Raw(ViewData["RegistedDaysForPeriodOfTime"])';
+                        var userHolidays = '@Html.Raw(ViewData["NumberOfUserHolidayDaysInPeriodOfTime"])';
+                        var expectedWorkingDays = '@Html.Raw(ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"])';
+                        var diferenceDays = '@Html.Raw(ViewData["DiferenceDays"])';
+                        var expectedWorkingHours = '@Html.Raw(ViewData["ExpectedNumberOfWorkingHours"])';
                         var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var diferenceWorkHours = '@Html.Raw(ViewData["DiferenceWorkHours"])';
+                        var expectedHoursInterval = '@Html.Raw(ViewData["ExpectedNumberOfIntervalHours"])';
                         var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
-                        return 'Data: ' + data + '\n' + 'Nome: ' + name + '\n' + 'Departamento: ' + depart + '\n' +
-                             'Cargo: ' + occup + '\n' + 'Total Trabalho(h): ' + totalWork + '\n' +
-                             'Total Intervalos(h): ' + totalInterv + '\n';
+                        var diferenceIntervalHours = '@Html.Raw(ViewData["DiferenceIntervalHours"])';
+                            return 'Data: ' + data + '\n' + 'Nome: ' + name + '\n' + 'Departamento: ' + depart + '\n' +
+                                'Cargo: ' + occup + '\n' +
+                                'Dias Úteis: ' + oficialWorkingDays + '   Dias de Ferias: ' + userHolidays +
+                                '   Dias Previstos de Trabalho: ' + expectedWorkingDays + '   Dias Registados: ' + totalRegistedDays +
+                                '   Diferença: ' + diferenceDays + '\n' +
+                                'Horas Previstas de Trabalho: ' + expectedWorkingHours + '   Horas Registadas: ' + totalWork +
+                                '   Diferença: ' + diferenceWorkHours + '\n' +
+                                'Horas Previstas de Intervalo: ' + expectedHoursInterval + '   Horas Registadas: ' + totalInterv +
+                                '   Diferença: ' + diferenceIntervalHours + '\n';
                         }
                 },
                    {
@@ -387,11 +658,26 @@
                         var name = '@Html.Raw(ViewData["ReportName"])';
                         var depart = '@Html.Raw(ViewData["ReportDepart"])';
                         var occup = '@Html.Raw(ViewData["ReportOccup"])';
+                        var oficialWorkingDays = '@Html.Raw(ViewData["NumberOfWorkingDaysInPeriodOfTime"])';
+                        var totalRegistedDays = '@Html.Raw(ViewData["RegistedDaysForPeriodOfTime"])';
+                        var userHolidays = '@Html.Raw(ViewData["NumberOfUserHolidayDaysInPeriodOfTime"])';
+                        var expectedWorkingDays = '@Html.Raw(ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"])';
+                        var diferenceDays = '@Html.Raw(ViewData["DiferenceDays"])';
+                        var expectedWorkingHours = '@Html.Raw(ViewData["ExpectedNumberOfWorkingHours"])';
                         var totalWork = '@Html.Raw(ViewData["TotalWork"])';
+                        var diferenceWorkHours = '@Html.Raw(ViewData["DiferenceWorkHours"])';
+                        var expectedHoursInterval = '@Html.Raw(ViewData["ExpectedNumberOfIntervalHours"])';
                         var totalInterv = '@Html.Raw(ViewData["TotalIntervals"])';
+                        var diferenceIntervalHours = '@Html.Raw(ViewData["DiferenceIntervalHours"])';
                             return 'Data: ' + data + '</br>' + 'Nome: ' + name + '</br>' + 'Departamento: ' + depart + '</br>' +
-                                'Cargo: ' + occup + '</br>' + 'Total Trabalho(h): ' + totalWork + '</br>' +
-                                'Total Intervalos(h): ' + totalInterv + '</br>';
+                                'Cargo: ' + occup + '</br>' +
+                                'Dias Úteis: ' + oficialWorkingDays + '   Dias de Ferias: ' + userHolidays +
+                                '   Dias Previstos de Trabalho: ' + expectedWorkingDays + '   Dias Registados: ' + totalRegistedDays +
+                                '   Diferença: ' + diferenceDays + '</br>' +
+                                'Horas Previstas de Trabalho: ' + expectedWorkingHours + '   Horas Registadas: ' + totalWork +
+                                '   Diferença: ' + diferenceWorkHours + '</br>' +
+                                'Horas Previstas de Intervalo: ' + expectedHoursInterval + '   Horas Registadas: ' + totalInterv +
+                                '   Diferença: ' + diferenceIntervalHours + '</br>';
                         }
                     }]
             });

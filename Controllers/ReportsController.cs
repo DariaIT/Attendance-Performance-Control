@@ -91,14 +91,75 @@ namespace Attendance_Performance_Control.Controllers
             var daysRange = endDate - startDate;
             var days = daysRange.Days;
 
+            //prepare data for grafic
             ViewData["GraficDays"] = days;
-            ViewData["JsonDataForGrafic"] = GetJsonDataForGrafic(listOfRecords);
+            ViewData["JsonDataOfCompleteWorkDaysForGrafic"] = GetJsonDataOfCompleteWorkDaysForGrafic(listOfRecords, user);
+            ViewData["JsonDataOfIncompleteWorkDaysForGrafic"] = GetJsonDataOfIncompleteWorkDaysForGrafic(listOfRecords, user);
+            ViewData["JsonDataOfWeekendsDaysForGrafic"] = GetJsonDataOfWeekendsDaysForGrafic(startDate, endDate, user);
+            ViewData["JsonDataOfBankHolidaysForGrafic"] = GetJsonDataOfBankHolidaysForGrafic(startDate, endDate, user);
+            ViewData["JsonDataOfUserHolidaysForGrafic"] = GetJsonDataOfUserHolidaysForGrafic(startDate, endDate, user);
+            //calculate hours for line annotation
+            double hours = 0;
+            if (user != null)
+            {
+                var oficialWorkHours = GetOficialWorkHours(user);
+                //transform everything in seconds and transform in hours 2.3h for grafic
+                hours = ((oficialWorkHours.Hours * 60 + oficialWorkHours.Minutes) * 60 + oficialWorkHours.Seconds) / 3600.0;
+            }
+            ViewData["OficialWorkingHours"] = hours;
+            //change opacity of line chat annotation to zero if no user specified
+            ViewData["LabelFontColorOpacity"] = user != null ? "rgba(103,106,108,1)" : "rgba(103, 106, 108, 0.01)";
 
             //totals for graf and reports
+            //number of working days in period of time - Dias Úteis
+            var workingDays = GetNumberOfWorkingDaysInPeriodOfTime(startDate, endDate);
+            ViewData["NumberOfWorkingDaysInPeriodOfTime"] = workingDays;
+
             var totalWork = TotalWorkHoursFromRecordsList(listOfRecords);
             var totalInterv = TotalIntervalsHoursFromRecordsList(listOfRecords);
-            ViewData["TotalWork"] = totalWork;
-            ViewData["TotalIntervals"] = totalInterv;
+            ViewData["TotalWork"] = string.Format("{0:00}:{1:00}:{2:00}", totalWork.TotalHours,
+                    totalWork.Minutes, totalWork.Seconds);
+            ViewData["TotalIntervals"] = string.Format("{0:00}:{1:00}:{2:00}", totalInterv.TotalHours,
+                    totalInterv.Minutes, totalInterv.Seconds);
+
+            //send data to view if user is not null
+            ViewData["IsSingleUser"] = user == null ? false : true;
+            if (user != null)
+            {
+                //number of days that user registed
+                var registDays = _context.DayRecords.Where(c => c.UserId == user.Id && c.Data >= startDate && c.Data <= endDate).Count();
+                ViewData["RegistedDaysForPeriodOfTime"] = registDays == null ? 0 : registDays;
+                int holidaysDays = _context.UserHolidays.Where(c => c.UserId == user.Id && c.HolidayDay.Date >= startDate.Date &&
+                c.HolidayDay.Date <= endDate.Date).Count();
+                ViewData["NumberOfUserHolidayDaysInPeriodOfTime"] = holidaysDays==null ? 0 : holidaysDays;
+                //calculate number of expected working days
+                //if any day of holiday overlap with Bank Holyday ou Saturday or Sunday -> do not subtract from working days
+                var expectedWorkingDays = GetNumberOfExpectedWorkingDaysInPeriodOfTime(startDate, endDate, user, workingDays, holidaysDays);
+                ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] = expectedWorkingDays;
+                //diference between expected working days and registered days
+                ViewData["DiferenceDays"] = registDays - expectedWorkingDays;
+                //expected houres of work( expectedWorkingDays * OficialWorkingHours)
+                var expectedWorkingHours = expectedWorkingDays * GetOficialWorkHours(user);
+                ViewData["ExpectedNumberOfWorkingHours"] = string.Format("{0:00}:{1:00}:{2:00}", expectedWorkingHours.TotalHours,
+                    expectedWorkingHours.Minutes, expectedWorkingHours.Seconds);
+                //diference between expected hoyrs of work and regidtered hours
+                var diferenceWorkHours = totalWork.Subtract(expectedWorkingHours);
+                ViewData["isNegativeDiferenceWork"] = diferenceWorkHours.TotalHours < 0 ? true : false;
+
+                ViewData["DiferenceWorkHours"] = string.Format("{0:00}:{1:00}:{2:00}", (int)diferenceWorkHours.TotalHours,
+                   Math.Abs(diferenceWorkHours.Minutes), Math.Abs(diferenceWorkHours.Seconds));
+                //expected houres of interval( expectedWorkingDays * OficialIntervalHours)
+                var expectedIntervalHours = expectedWorkingDays * GetOficiaIntervalHours(user);
+                ViewData["ExpectedNumberOfIntervalHours"] = string.Format("{0:00}:{1:00}:{2:00}", expectedIntervalHours.TotalHours,
+                    expectedIntervalHours.Minutes, expectedIntervalHours.Seconds);
+                //diference between expected hoyrs of work and regidtered hours
+                var diferenceIntervalHours = expectedIntervalHours.Subtract(totalInterv);
+                ViewData["isNegativeDiferenceInterval"] = diferenceIntervalHours.TotalHours < 0 ? true : false;
+
+                ViewData["DiferenceIntervalHours"] = string.Format("{0:00}:{1:00}:{2:00}", (int)diferenceIntervalHours.TotalHours,
+                   Math.Abs(diferenceIntervalHours.Minutes), Math.Abs(diferenceIntervalHours.Seconds));
+            }
+
 
             //data for report title
             ViewData["ReportTitle"] = "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.";
@@ -117,8 +178,18 @@ namespace Attendance_Performance_Control.Controllers
                 ViewData["ReportOccup"] = userOccupation.OccupationName;
             }
 
-            //var testQuery = _contextBigalcon.contactosTaxas.ToList();
-            //ViewData["List"] = testQuery;
+            //Add bank and user holidays, saturday and sunday speciialize ReportDayType, to show in table and reports:
+            //ReportDayType
+            //1 - Ferias
+            //2 - Fim-de-Semana
+            //3 - Feriado
+            // if Feriado -> add IsBankHolydaysName
+            //4 - Working Day
+
+            if (user!=null)
+            {
+                listOfRecords = GetListofRecordsWithWeekendsUserAndBankHolidays(listOfRecords, user, startDate, endDate);
+            }
 
             return View(listOfRecords);
         }
@@ -184,7 +255,7 @@ namespace Attendance_Performance_Control.Controllers
             else
             {
                 var adminId = GetAdminUserId();
-                ViewData["Users"] = new SelectList(_context.Users.Where(c=>c.Id!=adminId), "Id", "FullName", searchByUser);
+                ViewData["Users"] = new SelectList(_context.Users.Where(c => c.Id != adminId), "Id", "FullName", searchByUser);
                 ViewData["searchByUser"] = searchByUser;
             }
 
@@ -195,13 +266,71 @@ namespace Attendance_Performance_Control.Controllers
             var days = daysRange.Days;
 
             ViewData["GraficDays"] = days;
-            ViewData["JsonDataForGrafic"] = GetJsonDataForGrafic(listOfRecords);
+            ViewData["JsonDataOfCompleteWorkDaysForGrafic"] = GetJsonDataOfCompleteWorkDaysForGrafic(listOfRecords, user);
+            ViewData["JsonDataOfIncompleteWorkDaysForGrafic"] = GetJsonDataOfIncompleteWorkDaysForGrafic(listOfRecords, user);
+            ViewData["JsonDataOfWeekendsDaysForGrafic"] = GetJsonDataOfWeekendsDaysForGrafic(startDate, endDate, user);
+            ViewData["JsonDataOfBankHolidaysForGrafic"] = GetJsonDataOfBankHolidaysForGrafic(startDate, endDate, user);
+            ViewData["JsonDataOfUserHolidaysForGrafic"] = GetJsonDataOfUserHolidaysForGrafic(startDate, endDate, user);
+            //calculate hours for line annotation
+            double hours = 0;
+            if (user != null)
+            {
+                var oficialWorkHours = GetOficialWorkHours(user);
+                //transform everything in seconds and transform in hours 2.3h for grafic
+                hours = ((oficialWorkHours.Hours * 60 + oficialWorkHours.Minutes) * 60 + oficialWorkHours.Seconds) / 3600.0;
+            }
+            ViewData["OficialWorkingHours"] = hours;
+            //change opacity of line chat annotation to zero if no user specified
+            ViewData["LabelFontColorOpacity"] = user!=null ? "rgba(103,106,108,1)" : "rgba(103, 106, 108, 0.01)";
 
             //totals for graf and reports
+
+            //number of working days in period of time - Dias Úteis
+            var workingDays = GetNumberOfWorkingDaysInPeriodOfTime(startDate, endDate);
+            ViewData["NumberOfWorkingDaysInPeriodOfTime"] = workingDays;
+
             var totalWork = TotalWorkHoursFromRecordsList(listOfRecords);
             var totalInterv = TotalIntervalsHoursFromRecordsList(listOfRecords);
             ViewData["TotalWork"] = totalWork;
             ViewData["TotalIntervals"] = totalInterv;
+
+            //send data to view if user is not null
+            ViewData["IsSingleUser"] = user == null ? false : true;
+            if (user != null)
+            {
+                //number of days that user registed
+                var registDays = _context.DayRecords.Where(c => c.UserId == user.Id && c.Data >= startDate && c.Data <= endDate).Count();
+                ViewData["RegistedDaysForPeriodOfTime"] = registDays == null ? 0 : registDays;
+                int holidaysDays = _context.UserHolidays.Where(c => c.UserId == user.Id && c.HolidayDay.Date >= startDate.Date &&
+                c.HolidayDay.Date <= endDate.Date).Count();
+                ViewData["NumberOfUserHolidayDaysInPeriodOfTime"] = holidaysDays == null ? 0 : holidaysDays;
+                //calculate number of expected working days
+                //if any day of holiday overlap with Bank Holyday ou Saturday or Sunday -> do not subtract from working days
+                var expectedWorkingDays = GetNumberOfExpectedWorkingDaysInPeriodOfTime(startDate, endDate, user, workingDays, holidaysDays);
+                ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] = expectedWorkingDays;
+                //diference between expected working days and registered days
+                ViewData["DiferenceDays"] = registDays - expectedWorkingDays;
+                //expected houres of work( expectedWorkingDays * OficialWorkingHours)
+                var expectedWorkingHours = expectedWorkingDays * GetOficialWorkHours(user);
+                ViewData["ExpectedNumberOfWorkingHours"] = string.Format("{0:00}:{1:00}:{2:00}", expectedWorkingHours.TotalHours,
+                    expectedWorkingHours.Minutes, expectedWorkingHours.Seconds);
+                //diference between expected hoyrs of work and regidtered hours
+                var diferenceWorkHours = totalWork.Subtract(expectedWorkingHours);
+                ViewData["isNegativeDiferenceWork"] = diferenceWorkHours.TotalHours < 0 ? true : false;
+
+                ViewData["DiferenceWorkHours"] = string.Format("{0:00}:{1:00}:{2:00}", (int)diferenceWorkHours.TotalHours,
+                   Math.Abs(diferenceWorkHours.Minutes), Math.Abs(diferenceWorkHours.Seconds));
+                //expected houres of interval( expectedWorkingDays * OficialIntervalHours)
+                var expectedIntervalHours = expectedWorkingDays * GetOficiaIntervalHours(user);
+                ViewData["ExpectedNumberOfIntervalHours"] = string.Format("{0:00}:{1:00}:{2:00}", expectedIntervalHours.TotalHours,
+                    expectedIntervalHours.Minutes, expectedIntervalHours.Seconds);
+                //diference between expected hoyrs of work and registered hours
+                var diferenceIntervalHours = expectedIntervalHours.Subtract(totalInterv);
+                ViewData["isNegativeDiferenceInterval"] = diferenceIntervalHours.TotalHours < 0 ? true : false;
+
+                ViewData["DiferenceIntervalHours"] = string.Format("{0:00}:{1:00}:{2:00}", (int)diferenceIntervalHours.TotalHours,
+                   Math.Abs(diferenceIntervalHours.Minutes), Math.Abs(diferenceIntervalHours.Seconds));
+            }
 
             //data for report title
             ViewData["ReportTitle"] = "Relatorio - Prévia Safe - Saúde Ocupacional, Higiene e Segurança S. A.";
@@ -220,7 +349,20 @@ namespace Attendance_Performance_Control.Controllers
                 ViewData["ReportOccup"] = userOccupation.OccupationName;
             }
 
-        return View(listOfRecords);
+            //Add bank and user holidays, saturday and sunday speciialize ReportDayType, to show in table and reports:
+            //ReportDayType
+            //1 - Ferias
+            //2 - Fim-de-Semana
+            //3 - Feriado
+            // if Feriado -> add IsBankHolydaysName
+            //4 - Working Day
+
+            if (user != null)
+            {
+                listOfRecords = GetListofRecordsWithWeekendsUserAndBankHolidays(listOfRecords, user, startDate, endDate);
+            }
+
+            return View(listOfRecords);
         }
 
 
@@ -283,6 +425,7 @@ namespace Attendance_Performance_Control.Controllers
                     {
                         DayRecordsId = record.Id,
                         Data = record.Data,
+                        User = record.User.FullName,
                         UserDepartment = userDepartment.DepartmentName,
                         UserOccupation = userOccupation.OccupationName,
                         DayStartTime = await GetDateStartTime(record.Id),
@@ -290,7 +433,8 @@ namespace Attendance_Performance_Control.Controllers
                         DayEndTime = (DateTime)await GetDateEndTime(record.Id),
                         EndDayDelayExplanation = record.EndDayDelayExplanation,
                         TotalHoursForWork = ((TimeSpan)GetTotalWorkHoursPorDay(record.Id)).ToString("hh\\:mm\\:ss"),
-                        TotalHoursForIntervals = GetTotalIntervalHoursPorDay(record.Id).ToString("hh\\:mm\\:ss")
+                        TotalHoursForIntervals = GetTotalIntervalHoursPorDay(record.Id).ToString("hh\\:mm\\:ss"),
+                        ReportDayType = 0
                     };
 
                     listOfReportsViewModel.Add(reportRecord);
@@ -301,7 +445,7 @@ namespace Attendance_Performance_Control.Controllers
             return listOfReportsViewModel;
         }
 
-        public async Task<IActionResult> DetailsRecord (int? id, string dateRangeSearch, string searchByUser, int? searchByDept)
+        public async Task<IActionResult> DetailsRecord(int? id, string dateRangeSearch, string searchByUser, int? searchByDept)
         {
             ViewData["dateRangeSearch"] = dateRangeSearch;
             ViewData["searchByUser"] = searchByUser;

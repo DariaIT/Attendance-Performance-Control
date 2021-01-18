@@ -108,12 +108,14 @@ namespace Attendance_Performance_Control.Controllers
             {
                 Start();
                 @ViewBag.totalSeconds = 1;
+                return View("Response");              
             }
             //if stop is true
             else if (String.Compare(start, "0") == 0)
             {
                 Stop();
                 @ViewBag.totalSeconds = 0;
+                return View("Response");
             }
 
             //return list of records of current user in descending order
@@ -244,67 +246,85 @@ namespace Attendance_Performance_Control.Controllers
             //check if DayRecord exist with Date.Today
             var dayToday = _context.DayRecords
                 .Where(c => c.Data.Date == DateTime.Now.Date).FirstOrDefault(c => c.UserId == currentUser.Id);
-
-            //if not exist DayRecord for today - create new
-            if (dayToday == null)
+            try
             {
-                DayRecord todayRecord = new DayRecord()
+                //if not exist DayRecord for today - create new
+                if (dayToday == null)
                 {
-                    Data = DateTime.Now,
-                    User = currentUser,
-                    UserId = currentUser.Id
-                };
+                    DayRecord todayRecord = new DayRecord()
+                    {
+                        Data = DateTime.Now,
+                        User = currentUser,
+                        UserId = currentUser.Id
+                    };
 
-                _context.DayRecords.Add(todayRecord);
-                _context.SaveChanges();
-                //create TimeRecord
+                    _context.DayRecords.Add(todayRecord);
+                    _context.SaveChanges();
+                    //create TimeRecord
 
-                TimeRecord timeRecordNew = new TimeRecord()
+                    TimeRecord timeRecordNew = new TimeRecord()
+                    {
+                        StartTime = todayRecord.Data,
+                        DayRecord = todayRecord,
+                        DayRecordId = todayRecord.Id
+                    };
+
+                    _context.TimeRecords.Add(timeRecordNew);
+                    _context.SaveChanges();
+                }
+                else
                 {
-                    StartTime = todayRecord.Data,
-                    DayRecord = todayRecord,
-                    DayRecordId = todayRecord.Id
-                };
+                    //if DayRecord already exist in db
 
-                _context.TimeRecords.Add(timeRecordNew);
-                _context.SaveChanges();
+                    // check if already exist open TimeRecord (i.e. 24/12/2020 9:01 NULL)
+                    // for defend db from second registration of already registed TimeRecord
+                    // Double registration happens on telefone on double click, because system react very slow
+                    // if open TimeRecord exists - do nothing, redirect to sucess Response Page
+                    // If do not exists - create new TimeRecord and redirect to sucess Response Page
+                    var timeRecordsTodayLast = _context.TimeRecords.Where(c => c.DayRecordId == dayToday.Id)
+                        .OrderBy(c => c.StartTime).ToList().Last();
+
+                    if (timeRecordsTodayLast.EndTime != null)
+                    {
+
+                        TimeRecord timeRecordNew = new TimeRecord()
+                        {
+                            StartTime = DateTime.Now,
+                            DayRecord = dayToday,
+                            DayRecordId = dayToday.Id
+                        };
+
+                        _context.TimeRecords.Add(timeRecordNew);
+                        _context.SaveChanges();
+
+                        //DayRecord and at least one TimeRecord already exist in db,
+                        //then on Start button click function create another TimeRecord, it means that we have an Interval
+                        //create Interval
+
+                        var timeRecordsTodayList = _context.TimeRecords.Where(c => c.DayRecordId == dayToday.Id)
+                            .OrderBy(c => c.StartTime).ToList();
+                        //Take penultimate element
+                        var lastTimeRecordsToday = timeRecordsTodayList[timeRecordsTodayList.Count - 2];
+
+                        var intervalNew = new IntervalRecord()
+                        {
+                            StartTime = (DateTime)lastTimeRecordsToday.EndTime,
+                            EndTime = (DateTime)timeRecordNew.StartTime,
+                            DayRecord = dayToday,
+                            DayRecordId = dayToday.Id
+                        };
+
+                        _context.IntervalRecords.Add(intervalNew);
+                        _context.SaveChanges();
+
+                    }
+                }
             }
-            else
+            catch(Exception)
             {
-                //if DayRecord already exist in db - create new TimeRecord
-
-                TimeRecord timeRecordNew = new TimeRecord()
-                {
-                    StartTime = DateTime.Now,
-                    DayRecord = dayToday,
-                    DayRecordId = dayToday.Id
-                };
-
-                _context.TimeRecords.Add(timeRecordNew);
-                _context.SaveChanges();
-
-                //DayRecord and at least one TimeRecord already exist in db,
-                //then on Start button click function create another TimeRecord, it means that we have an Interval
-                //create Interval
-
-                var timeRecordsTodayList = _context.TimeRecords.Where(c => c.DayRecordId == dayToday.Id)
-                    .OrderBy(c => c.StartTime).ToList();
-                //Take penultimate element
-                var lastTimeRecordsToday = timeRecordsTodayList[timeRecordsTodayList.Count - 2];
-
-                var intervalNew = new IntervalRecord()
-                {
-                    StartTime = (DateTime)lastTimeRecordsToday.EndTime,
-                    EndTime = (DateTime)timeRecordNew.StartTime,
-                    DayRecord = dayToday,
-                    DayRecordId = dayToday.Id
-                };
-
-                _context.IntervalRecords.Add(intervalNew);
-                _context.SaveChanges();
-
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
             }
-
+            TempData["Success"] = "Obrigada. As Horas estão registados com sucesso.";         
         }
 
 
@@ -322,12 +342,27 @@ namespace Attendance_Performance_Control.Controllers
             var dayToday = _context.DayRecords
                 .Where(c => c.Data.Date == DateTime.Now.Date).FirstOrDefault(c => c.UserId == currentUser.Id);
 
-            //find last TimeRecord of today date
-            var timeRecordToClose = _context.TimeRecords.Where(c => c.DayRecordId == dayToday.Id)
-                .OrderBy(c => c.StartTime).Last();
+            try
+            {
+                //check if last TimeRecord is already closed, i.e. EndTime has value
+                //protect from double click on telefone
+                // if TimeRecord already closed - do nothing, redirect to sucess Response Page
+                // if not closed - close last TimeRecord
 
-            timeRecordToClose.EndTime = DateTime.Now;
-            _context.SaveChanges();
+                //find last TimeRecord of today date
+                var timeRecordToClose = _context.TimeRecords.Where(c => c.DayRecordId == dayToday.Id)
+                    .OrderBy(c => c.StartTime).Last();
+                if (timeRecordToClose.EndTime == null)
+                {
+                    timeRecordToClose.EndTime = DateTime.Now;
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception)
+            {
+                TempData["Failure"] = "Algo correu errado, por favor, tente novamente ou contacte Administrador do Sistema.";
+            }
+            TempData["Success"] = "Obrigada. As Horas estão registados com sucesso.";
         }
 
 
@@ -347,10 +382,13 @@ namespace Attendance_Performance_Control.Controllers
             //get DayRecord by Data
             var thisDateRecord = _context.DayRecords.FirstOrDefault(c => c.Data.Date == Data.Date);
 
-            if (!String.IsNullOrEmpty(StartDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
-                ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
-            if (!String.IsNullOrEmpty(EndDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
-                ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
+            if (thisDateRecord != null)
+            {
+                if (!String.IsNullOrEmpty(StartDayDelayFlag) && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
+                    ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
+                if (!String.IsNullOrEmpty(EndDayDelayFlag) && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
+                    ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
+            }
 
             //resend parameters by ViewData
             ViewData["Data"] = data;
@@ -363,7 +401,7 @@ namespace Attendance_Performance_Control.Controllers
 
         [HttpPost]
         [ActionName("DelayExpl")]
-        public async Task<IActionResult> DelayExplPost(string Data, string ExplText, string StartDayDelayFlag, string EndDayDelayFlag, string dateRangeSearch, int? page)
+        public IActionResult DelayExplPost(string Data, string ExplText, string StartDayDelayFlag, string EndDayDelayFlag, string dateRangeSearch, int? page)
         {
             ViewData["dateRangeSearch"] = dateRangeSearch;
             ViewData["page"] = page;
@@ -395,7 +433,7 @@ namespace Attendance_Performance_Control.Controllers
                     if (!String.IsNullOrEmpty(StartDayDelayFlag) && Convert.ToBoolean(StartDayDelayFlag))
                     {
                         thisDateRecord.StartDayDelayExplanation = ExplText;
-                        await _context.SaveChangesAsync();
+                        _context.SaveChanges();
 
                         TempData["Success"] = "A explicação foi guardado com sucesso.";
 
@@ -405,7 +443,7 @@ namespace Attendance_Performance_Control.Controllers
                     else if (!String.IsNullOrEmpty(EndDayDelayFlag) && Convert.ToBoolean(EndDayDelayFlag))
                     {
                         thisDateRecord.EndDayDelayExplanation = ExplText;
-                        await _context.SaveChangesAsync();
+                        _context.SaveChanges();
 
                         TempData["Success"] = "A explicação foi guardado com sucesso.";
 
@@ -423,10 +461,13 @@ namespace Attendance_Performance_Control.Controllers
             ViewData["StartDayDelayFlag"] = StartDayDelayFlag;
             ViewData["EndDayDelayFlag"] = EndDayDelayFlag;
 
-            if (!String.IsNullOrEmpty(StartDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
-                ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
-            if (!String.IsNullOrEmpty(EndDayDelayFlag) && thisDateRecord != null && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
-                ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
+            if (thisDateRecord != null)
+            {
+                if (!String.IsNullOrEmpty(StartDayDelayFlag) && !String.IsNullOrEmpty(thisDateRecord.StartDayDelayExplanation))
+                    ViewData["ExplText"] = thisDateRecord.StartDayDelayExplanation;
+                if (!String.IsNullOrEmpty(EndDayDelayFlag) && !String.IsNullOrEmpty(thisDateRecord.EndDayDelayExplanation))
+                    ViewData["ExplText"] = thisDateRecord.EndDayDelayExplanation;
+            }
 
             return View();
         }
