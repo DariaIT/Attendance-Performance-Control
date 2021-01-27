@@ -2,11 +2,11 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="nav navbar-top-links navbar-right">
+<ul class="nav navbar-top-links navbar-right flex-nowrap pl-3 pl-md-0 justify-content-md-end">
     @if (SignInManager.IsSignedIn(User))
     {
 
-        <li class="nav-item">
+        <li class="nav-item text-nowrap">
             <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Editar"><i class="fa fa-cog"></i> Olá @UserManager.GetUserAsync(User).Result.FirstName @UserManager.GetUserAsync(User).Result.LastName </a>
         </li>
         <li class="nav-item">

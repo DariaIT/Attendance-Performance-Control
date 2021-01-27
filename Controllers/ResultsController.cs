@@ -99,8 +99,18 @@ namespace Attendance_Performance_Control.Controllers
                 var expectedWorkingDays = GetNumberOfExpectedWorkingDaysInPeriodOfTime(startDate, endDate, user, workingDays, holidaysDays);
                 ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] = expectedWorkingDays;
 
+                //get minimum limits defined for this user
+                //system create limits automaticamente then Admin make user Confirm (2,2,30)
+                //Admin can edit min limits later
+                //limits could be zero, for users who do not need submit results
+                ViewData["MinLimitAuditorias"] = _context.MinimumUserResults.FirstOrDefault(c => c.UserId == user.Id).MinimumAuditorias;
+                ViewData["MinLimitConsultas"] = _context.MinimumUserResults.FirstOrDefault(c => c.UserId == user.Id).MinimumConsultas;
+                ViewData["MinLimitRelatorios"] = _context.MinimumUserResults.FirstOrDefault(c => c.UserId == user.Id).MinimumRelatorios;
             }
 
+            //if user != null then listOfResult contain records of this user
+            //if user=null then return sum of all results of all users
+            //control this in View, show diferent views ofr single or all users
             var auditorias = listOfResults.Where(c => c.ResultTypeId == 1).Sum(c => c.NumberOfResults);
             var consultas = listOfResults.Where(c => c.ResultTypeId == 2).Sum(c => c.NumberOfResults);
             var relatorios = listOfResults.Where(c => c.ResultTypeId == 3).Sum(c => c.NumberOfResults);

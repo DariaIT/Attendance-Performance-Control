@@ -98,6 +98,38 @@ namespace Attendance_Performance_Control.Controllers
             return IsOneRecordNotClosed = listOfTimeRecords.Last().EndTime == null ? IsOneRecordNotClosed = true : IsOneRecordNotClosed;
         }
 
+        //This DayRecord has one of TimeRecords (last) that is not closed
+        //public bool RemoveAllUncloseTimeEntries(DayRecord record)
+        //{
+        //    var IsRemovedTotaly = false;
+        //    //get all TimeRecords with this DayRecord Id
+        //    var timeRecordsList = _context.TimeRecords.Where(c => c.DayRecordId == record.Id).ToList();
+        //    //if length = 1, then remove TimeRecord and DayRecord
+        //    if(timeRecordsList.Count()==1)
+        //    {
+        //        var timeRecordToRemove = timeRecordsList.First();
+        //        _context.TimeRecords.Remove(timeRecordToRemove);
+        //        _context.DayRecords.Remove(record);
+        //        _context.SaveChanges();
+
+        //        IsRemovedTotaly = true;
+        //    }
+        //    //if length > 1, then remove just last unclose TimeRecord
+        //    if(timeRecordsList.Count()>1)
+        //    {
+        //        //remove last unclosed TimeRecord
+        //        var timeRecordToRemove = timeRecordsList.Last();
+        //        _context.TimeRecords.Remove(timeRecordToRemove);
+        //        //remove last Interval
+        //        var intervalsList = _context.IntervalRecords.Where(c => c.DayRecordId == record.Id).ToList();
+        //        var lastIntervalToRemove = intervalsList.Last();
+        //        _context.IntervalRecords.Remove(lastIntervalToRemove);
+
+        //        _context.SaveChanges();
+        //    }
+        //    return IsRemovedTotaly;
+        //}
+
         public void SetNormalizeTimetableInTimerLost(DayRecord record)
         {
             var user = _userManager.FindByIdAsync(record.UserId).Result;
@@ -337,7 +369,7 @@ namespace Attendance_Performance_Control.Controllers
                     var oficialWorkHours = GetOficialWorkHours(user);
                     double oficialConvertedHours = ((oficialWorkHours.Hours * 60 + oficialWorkHours.Minutes) * 60 + oficialWorkHours.Seconds) / 3600.0;
                     //if registered hours is more then oficial work hours - add to json list
-                    if (hours > oficialConvertedHours)
+                    if (hours >= oficialConvertedHours)
                     {
                         var thisJsonObj = new JsonObj() { x = thisDate, y = hours };
                         jsonList.Add(thisJsonObj);

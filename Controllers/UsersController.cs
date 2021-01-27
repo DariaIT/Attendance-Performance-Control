@@ -95,6 +95,19 @@ namespace Attendance_Performance_Control.Controllers
                             user.StartLunchTime = applicationUser.StartLunchTime;
                         if (applicationUser.EndLunchTime.HasValue)
                             user.EndLunchTime = applicationUser.EndLunchTime;
+
+                        //create User Minimum Results (Auditorias, Consultas, Relatorios)
+
+                        MinimumUserResults minThisUserResult = new MinimumUserResults()
+                        {
+                            MinimumAuditorias = 2,
+                            MinimumConsultas = 30,
+                            MinimumRelatorios = 2,
+                            UserId = user.Id
+                        };
+
+                        _context.MinimumUserResults.Add(minThisUserResult);
+
                         await _context.SaveChangesAsync();
 
                         //try to send email confirmation to registered user
@@ -190,7 +203,7 @@ namespace Attendance_Performance_Control.Controllers
             {
                 return NotFound();
             }
-          
+
             //check if just one time of lunch is defind - reject, has to be both defind or both null
             if (editedUser.StartLunchTime == null && editedUser.EndLunchTime != null ||
                 editedUser.StartLunchTime != null && editedUser.EndLunchTime == null)
@@ -227,8 +240,8 @@ namespace Attendance_Performance_Control.Controllers
                     //Desactivate User
                     else if (!editedUser.IsActive && !applicationUser.LockoutEnd.HasValue)
                     {
-                       var lockoutDate = DateTime.Now.AddYears(20);
-                       await _userManager.SetLockoutEndDateAsync(applicationUser, lockoutDate);
+                        var lockoutDate = DateTime.Now.AddYears(20);
+                        await _userManager.SetLockoutEndDateAsync(applicationUser, lockoutDate);
                     }
 
                     //this message is showen in Index after redirect success

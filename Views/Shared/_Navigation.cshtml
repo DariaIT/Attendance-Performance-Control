@@ -42,10 +42,14 @@
 
             <li class="@Html.IsSelected(controller: "Results", action: "Index")">
                 <a href="#"><i class="fa fa-poll"></i> <span class="nav-label">Resultados</span><span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level @Html.IsSelected(action: "Index", controller: "Results", cssClass: "collapse in") @Html.IsSelected(action: "Create", controller: "Results", cssClass: "collapse in")">
+                <ul class="nav nav-second-level @Html.IsSelected(action: "Index", controller: "Results", cssClass: "collapse in") @Html.IsSelected(action: "Create", controller: "Results", cssClass: "collapse in") @Html.IsSelected(action: "Index", controller: "MinimumUserResults", cssClass: "collapse in")">
                     @if (!@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)
                     {
                         <li class="@Html.IsSelected(action: "Create", controller: "Results")"><a href="@Url.Action("Create", "Results")">Registar</a></li>
+                    }
+                    @if (@UserManager.IsInRoleAsync((@UserManager.GetUserAsync(User).Result), "Admin").Result)
+                    {
+                        <li class="@Html.IsSelected(action: "Index", controller: "MinimumUserResults")"><a href="@Url.Action("Index", "MinimumUserResults")">Definir Min.</a></li>
                     }
                     <li class="@Html.IsSelected(action: "Index", controller: "Results")"><a href="@Url.Action("Index", "Results")">Relatorios</a></li>
                 </ul>

@@ -22,7 +22,9 @@ namespace Attendance_Performance_Control.Controllers
         // GET: UserHolidays
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.UserHolidays;
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var applicationDbContext = _context.UserHolidays.Where(c=> c.UserId==user.Id);
             return View(await applicationDbContext.ToListAsync());
         }
 

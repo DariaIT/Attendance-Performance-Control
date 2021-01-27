@@ -77,3 +77,8 @@ div.dt-buttons {
     float:right;
 }
 
+@media (max-width: 635px) {
+    .ibox-content {
+        display:none;
+    }
+}

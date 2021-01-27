@@ -127,7 +127,7 @@ namespace Attendance_Performance_Control.Controllers
             if (user != null)
             {
                 //number of days that user registed
-                var registDays = _context.DayRecords.Where(c => c.UserId == user.Id && c.Data >= startDate && c.Data <= endDate).Count();
+                var registDays = _context.DayRecords.Where(c => c.UserId == user.Id && c.Data >= startDate && c.Data <= endDate && c.Data.Date!=DateTime.Now.Date).Count();
                 ViewData["RegistedDaysForPeriodOfTime"] = registDays == null ? 0 : registDays;
                 int holidaysDays = _context.UserHolidays.Where(c => c.UserId == user.Id && c.HolidayDay.Date >= startDate.Date &&
                 c.HolidayDay.Date <= endDate.Date).Count();
@@ -291,15 +291,17 @@ namespace Attendance_Performance_Control.Controllers
 
             var totalWork = TotalWorkHoursFromRecordsList(listOfRecords);
             var totalInterv = TotalIntervalsHoursFromRecordsList(listOfRecords);
-            ViewData["TotalWork"] = totalWork;
-            ViewData["TotalIntervals"] = totalInterv;
+            ViewData["TotalWork"] = string.Format("{0:00}:{1:00}:{2:00}", totalWork.TotalHours,
+                     totalWork.Minutes, totalWork.Seconds);
+            ViewData["TotalIntervals"] = string.Format("{0:00}:{1:00}:{2:00}", totalInterv.TotalHours,
+                    totalInterv.Minutes, totalInterv.Seconds);
 
             //send data to view if user is not null
             ViewData["IsSingleUser"] = user == null ? false : true;
             if (user != null)
             {
                 //number of days that user registed
-                var registDays = _context.DayRecords.Where(c => c.UserId == user.Id && c.Data >= startDate && c.Data <= endDate).Count();
+                var registDays = _context.DayRecords.Where(c => c.UserId == user.Id && c.Data >= startDate && c.Data <= endDate && c.Data.Date!=DateTime.Now.Date).Count();
                 ViewData["RegistedDaysForPeriodOfTime"] = registDays == null ? 0 : registDays;
                 int holidaysDays = _context.UserHolidays.Where(c => c.UserId == user.Id && c.HolidayDay.Date >= startDate.Date &&
                 c.HolidayDay.Date <= endDate.Date).Count();

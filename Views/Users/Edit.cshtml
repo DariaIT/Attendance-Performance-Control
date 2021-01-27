@@ -110,28 +110,32 @@
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @*@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}*@
 
     <script type="text/javascript">
         $(function () {
             $('#timepickerStartWorkTimeEdit').datetimepicker({
                 format: 'LT',
-                locale: 'pt'
+                locale: 'pt',
+                allowInputToggle: true
             });
 
             $('#timepickerEndWorkTime').datetimepicker({
                 format: 'LT',
-                locale: 'pt'
+                locale: 'pt',
+                allowInputToggle: true
             });
 
             $('#timepickerStartLunchTime').datetimepicker({
                 format: 'LT',
-                locale: 'pt'
+                locale: 'pt',
+                allowInputToggle: true
             });
 
             $('#timepickerEndLunchTime').datetimepicker({
                 format: 'LT',
-                locale: 'pt'
+                locale: 'pt',
+                allowInputToggle: true
             });
         });
     </script>

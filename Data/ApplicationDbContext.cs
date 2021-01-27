@@ -25,7 +25,7 @@ namespace Attendance_Performance_Control.Data
         public DbSet<BankHoliday> BankHolidays { get; set; }
         public DbSet<BankHolidaysType> BankHolidaysType { get; set; }
         public DbSet<UserHoliday> UserHolidays { get; set; }
-
+        public DbSet<MinimumUserResults> MinimumUserResults { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

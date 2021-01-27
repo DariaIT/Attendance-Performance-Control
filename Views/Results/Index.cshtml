@@ -85,55 +85,66 @@
 <div class="col-12">
     <div class="ibox">
         <div class="ibox-title">
-            <div class="text-center text-success border border-success mb-2 p-2">
-                <h3>Registos Minimos Por Dia do Trabalho:</h3>
-                <h5 class="pr-3">Auditorias - 2</h5>
-                <h5 class="pr-3">Relatórios - 2</h5>
-                <h5>Consultas - 30</h5>
-            </div>
+
             <!--Show in green or red color depend on minimum registration values-->
             <!--2/day for Auditorias and Relatorios; 30 for Consultas-->
             <!--show if user is not null-->
             @if ((bool)@ViewData["IsSingleUser"])
             {
+                <div class="text-center text-success border border-success mb-2 p-2">
+                    <h3>Registos Minimos Por Dia do Trabalho:</h3>
+                    <h5 class="pr-3">Auditorias - @ViewData["MinLimitAuditorias"]</h5>
+                    <h5 class="pr-3">Relatórios - @ViewData["MinLimitRelatorios"]</h5>
+                    <h5>Consultas - @ViewData["MinLimitConsultas"]</h5>
+                </div>
+
                 <h5 class="pr-3">Dias Úteis: @ViewData["NumberOfWorkingDaysInPeriodOfTime"] </h5>
                 <h5 class="pr-3">Dias de Férias: @ViewData["NumberOfUserHolidayDaysInPeriodOfTime"] </h5>
                 <h5 class="pr-3">Dias Previstos de Trabalho: @ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] </h5>
                 <h5 class="pr-3">Dias Registados: @ViewData["RegistedDaysForPeriodOfTime"] </h5>
                 <br />
-                if ((int)@ViewData["TotalAuditorias"] != 0)
+                if ((int)@ViewData["MinLimitAuditorias"] != 0)
                 {
-                    var auditoriasPrevistas = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * 2;
-                    <h5 class="pr-3">Auditorias Previstas: @auditoriasPrevistas </h5>
-                    <h5 class="pr-3">Auditorias Registadas: @ViewData["TotalAuditorias"] </h5>
+                    if (@ViewData["searchByResultType"] == null || (int)@ViewData["searchByResultType"] == 1)
+                    {
+                        var auditoriasPrevistas = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * (int)@ViewData["MinLimitAuditorias"];
+                        <h5 class="pr-3">Auditorias Previstas: @auditoriasPrevistas </h5>
+                        <h5 class="pr-3">Auditorias Registadas: @ViewData["TotalAuditorias"] </h5>
 
-                    var diferencaAuditorias = (int)@ViewData["TotalAuditorias"] - @auditoriasPrevistas;
-                    var diferenceAuditoriasClass = @diferencaAuditorias >= 0 ? "text-success" : "text-danger";
-                    <h5 class="pr-3 @diferenceAuditoriasClass">Diferença: @diferencaAuditorias </h5>
-                    <br />
+                        var diferencaAuditorias = (int)@ViewData["TotalAuditorias"] - @auditoriasPrevistas;
+                        var diferenceAuditoriasClass = @diferencaAuditorias >= 0 ? "text-success" : "text-danger";
+                        <h5 class="pr-3 @diferenceAuditoriasClass">Diferença: @diferencaAuditorias </h5>
+                        <br />
+                    }
                 }
-                if ((int)@ViewData["TotalConsultas"] != 0)
+                if ((int)@ViewData["MinLimitConsultas"] != 0)
                 {
-                    var consultasPrevistas = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * 30;
-                    <h5 class="pr-3">Consultas Previstas: @consultasPrevistas </h5>
-                    <h5 class="pr-3">Consultas Registadas: @ViewData["TotalConsultas"] </h5>
+                    if (@ViewData["searchByResultType"] == null || (int)@ViewData["searchByResultType"] == 2)
+                    {
+                        var consultasPrevistas = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * (int)@ViewData["MinLimitConsultas"];
+                        <h5 class="pr-3">Consultas Previstas: @consultasPrevistas </h5>
+                        <h5 class="pr-3">Consultas Registadas: @ViewData["TotalConsultas"] </h5>
 
 
-                    var diferencaConsultas = (int)@ViewData["TotalConsultas"] - @consultasPrevistas;
-                    var diferenceConsultasClass = @diferencaConsultas >= 0 ? "text-success" : "text-danger";
-                    <h5 class="pr-3 @diferenceConsultasClass">Diferença: @diferencaConsultas </h5>
-                    <br />
+                        var diferencaConsultas = (int)@ViewData["TotalConsultas"] - @consultasPrevistas;
+                        var diferenceConsultasClass = @diferencaConsultas >= 0 ? "text-success" : "text-danger";
+                        <h5 class="pr-3 @diferenceConsultasClass">Diferença: @diferencaConsultas </h5>
+                        <br />
+                    }
                 }
-                if ((int)@ViewData["TotalRelatorios"] != 0)
+                if ((int)@ViewData["MinLimitRelatorios"] != 0)
                 {
-                    var relatoriosPrevistos = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * 2;
-                    <h5 class="pr-3">Relatórios Previstos: @relatoriosPrevistos </h5>
-                    <h5 class="pr-3">Relatórios Registados: @ViewData["TotalRelatorios"] </h5>
+                    if (@ViewData["searchByResultType"] == null || (int)@ViewData["searchByResultType"] == 3)
+                    {
+                        var relatoriosPrevistos = (int)@ViewData["NumberOfExpectedWorkingDaysInPeriodOfTime"] * (int)@ViewData["MinLimitRelatorios"];
+                        <h5 class="pr-3">Relatórios Previstos: @relatoriosPrevistos </h5>
+                        <h5 class="pr-3">Relatórios Registados: @ViewData["TotalRelatorios"] </h5>
 
-                    var diferencaRelatorios = (int)@ViewData["TotalRelatorios"] - @relatoriosPrevistos;
-                    var diferenceRelatorioClass = @diferencaRelatorios >= 0 ? "text-success" : "text-danger";
-                    <h5 class="pr-3 @diferenceRelatorioClass">Diferença: @diferencaRelatorios </h5>
-                    <br />
+                        var diferencaRelatorios = (int)@ViewData["TotalRelatorios"] - @relatoriosPrevistos;
+                        var diferenceRelatorioClass = @diferencaRelatorios >= 0 ? "text-success" : "text-danger";
+                        <h5 class="pr-3 @diferenceRelatorioClass">Diferença: @diferencaRelatorios </h5>
+                        <br />
+                    }
                 }
             }
             else
@@ -180,14 +191,23 @@
             //set line color depend on minimum value
             // 1 -> Auditorias, 2 -> Consultas, 3 -> Relatorios
             var rowStyle = "";
-            if (item.Type.Id == 1 || item.Type.Id == 3)
+
+            @if ((bool)@ViewData["IsSingleUser"])
             {
-                rowStyle = item.NumberOfResults >= 2 ? "table-success" : "table-danger";
+                if (item.Type.Id == 1)
+                {
+                    rowStyle = item.NumberOfResults >= (int)@ViewData["MinLimitAuditorias"] ? "table-success" : "table-danger";
+                }
+                if (item.Type.Id == 2)
+                {
+                    rowStyle = item.NumberOfResults >= (int)@ViewData["TotalConsultas"] ? "table-success" : "table-danger";
+                }
+                if (item.Type.Id == 3)
+                {
+                    rowStyle = item.NumberOfResults >= (int)@ViewData["MinLimitRelatorios"] ? "table-success" : "table-danger";
+                }
             }
-            if (item.Type.Id == 2)
-            {
-                rowStyle = item.NumberOfResults >= 30 ? "table-success" : "table-danger";
-            }
+
             <tr class="@rowStyle">
                 <td>
                     @item.Data.ToShortDateString()
@@ -202,13 +222,16 @@
                     @Html.DisplayFor(modelItem => item.NumberOfResults)
                 </td>
 
-                <td >
-                    <a class="icone" title="Editar" asp-action="Edit" asp-route-id="@item.Id">
-                        <i style="font-size:16px" class="fa fa-cog"></i>
-                    </a>
-                    <a class="icone pl-2" title="Eliminar" asp-action="Delete" asp-route-id="@item.Id">
-                        <i style="font-size:16px" class="fa fa-trash-alt"></i>
-                    </a>
+                <td>
+                    @if (!(bool)ViewData["IsAdmin"])
+                    {
+                        <a class="icone" title="Editar" asp-action="Edit" asp-route-id="@item.Id">
+                            <i style="font-size:16px" class="fa fa-cog"></i>
+                        </a>
+                        <a class="icone pl-2" title="Eliminar" asp-action="Delete" asp-route-id="@item.Id">
+                            <i style="font-size:16px" class="fa fa-trash-alt"></i>
+                        </a>
+                    }
                 </td>
             </tr>
         }

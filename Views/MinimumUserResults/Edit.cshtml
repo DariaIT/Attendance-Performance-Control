@@ -1,0 +1,60 @@
+﻿@model Attendance_Performance_Control.Models.MinimumUserResultsEditViewModel
+
+@{
+    ViewData["Title"] = "Editar Resultados Mínimos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-3 pt-3">
+        <div>
+            <a class="icone pt-5 pl-3" title="Voltar" asp-action="Index">
+                <i class="fa fa-2x fa-arrow-circle-left"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2 class="text-center pt-2">@ViewData["Title"]</h2>
+        <hr />
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="UserId" />
+
+            @if (Html.ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="MinimumAuditorias" class="control-label"></label>
+                <input asp-for="MinimumAuditorias" class="form-control" />
+                <span asp-validation-for="MinimumAuditorias" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinimumConsultas" class="control-label"></label>
+                <input asp-for="MinimumConsultas" class="form-control" />
+                <span asp-validation-for="MinimumConsultas" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinimumRelatorios" class="control-label"></label>
+                <input asp-for="MinimumRelatorios" class="form-control" />
+                <span asp-validation-for="MinimumRelatorios" class="text-danger"></span>
+            </div>
+            <div class="form-group text-center">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                <a class="btn btn-primary ml-3" title="Voltar" asp-action="Index">Voltar</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

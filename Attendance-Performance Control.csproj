@@ -21,6 +21,8 @@
     <Compile Remove="Data\Migrations\20200909093314_AddTimetableAppUser.Designer.cs" />
     <Compile Remove="Data\Migrations\20200915111611_AddStartAndEndDelayExplanationToIntervalRecord.cs" />
     <Compile Remove="Data\Migrations\20200915111611_AddStartAndEndDelayExplanationToIntervalRecord.Designer.cs" />
+    <Compile Remove="Data\Migrations\20210118202943_AddMinimumUserResults.cs" />
+    <Compile Remove="Data\Migrations\20210118202943_AddMinimumUserResults.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
